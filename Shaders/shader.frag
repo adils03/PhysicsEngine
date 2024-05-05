@@ -1,8 +1,7 @@
 #version 330 core
-in vec4 vColor; // Vertex shader'dan gelen renk bilgisi
-
-out vec4 pixelColor; // Son çýktý rengi
+out vec4 FragColor;
+uniform vec3 Color;
 
 void main(){
-	pixelColor = vColor; // Gelen rengi direkt olarak çýktýya atadýk
+	FragColor = vec4(Color,1.0);
 }

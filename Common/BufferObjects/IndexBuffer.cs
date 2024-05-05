@@ -1,54 +1,59 @@
 ﻿using System;
 using OpenTK.Graphics.OpenGL4;
 
-namespace PhysicsEngine
+namespace PhysicsEngine.Common.BufferObjects
 {
     public sealed class IndexBuffer : IDisposable
     {
         public static readonly int MinIndexCount = 1;
-        public static readonly int MaxIndexCount = 250000;
+        public static readonly int MaxIndexCount = 250_000;
 
         private bool disposed;
 
-        public readonly int IndexBufferObject;
+        public readonly int IndexBufferHandle;
         public readonly int IndexCount;
         public readonly bool IsStatic;
+
         public IndexBuffer(int indexCount, bool isStatic = true)
         {
-            disposed = false;
-            if (indexCount < MinIndexCount ||
-                indexCount > MaxIndexCount)
+            if (indexCount < IndexBuffer.MinIndexCount ||
+                indexCount > IndexBuffer.MaxIndexCount)
             {
                 throw new ArgumentOutOfRangeException(nameof(indexCount));
             }
-            IndexCount = indexCount;
-            IsStatic = isStatic;
-            BufferUsageHint bufferUsageHint = BufferUsageHint.StaticDraw;
-            if (!IsStatic)
+
+            this.IndexCount = indexCount;
+            this.IsStatic = isStatic;
+
+            BufferUsageHint hint = BufferUsageHint.StaticDraw;
+            if (!this.IsStatic)
             {
-                bufferUsageHint = BufferUsageHint.StreamDraw;
+                hint = BufferUsageHint.StreamDraw;
             }
-            IndexBufferObject = GL.GenBuffer();
-            //Index için buffer oluşturduk sonra bufferımızı serbest bıraktık
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, IndexBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, IndexCount * sizeof(int), nint.Zero, bufferUsageHint);
+
+            this.IndexBufferHandle = GL.GenBuffer();
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.IndexBufferHandle);
+            GL.BufferData(BufferTarget.ElementArrayBuffer, this.IndexCount * sizeof(int), IntPtr.Zero, hint);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         }
+
         ~IndexBuffer()
         {
-            Dispose();
+            this.Dispose();
         }
         public void Dispose()
         {
-            if (disposed) return;
+            if (this.disposed)
+            {
+                return;
+            }
 
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-            GL.DeleteBuffer(IndexBufferObject);
+            GL.DeleteBuffer(this.IndexBufferHandle);
 
-            disposed = true;
+            this.disposed = true;
             GC.SuppressFinalize(this);
         }
-
         public void SetData(int[] data, int count)
         {
             if (data is null)
@@ -62,16 +67,17 @@ namespace PhysicsEngine
             }
 
             if (count <= 0 ||
-                count > IndexCount ||
+                count > this.IndexCount ||
                 count > data.Length)
             {
                 throw new ArgumentOutOfRangeException(nameof(count));
             }
-            //Bufferımıza datamızı aktardık
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, IndexBufferObject);
-            GL.BufferSubData(BufferTarget.ElementArrayBuffer, nint.Zero, count * sizeof(int), data);
+
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, this.IndexBufferHandle);
+            GL.BufferSubData(BufferTarget.ElementArrayBuffer, IntPtr.Zero, count * sizeof(int), data);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
         }
-
     }
+
 }
+

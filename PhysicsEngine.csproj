@@ -9,6 +9,16 @@
 
   <ItemGroup>
     <PackageReference Include="OpenTK" Version="4.8.2" />
+    <PackageReference Include="StbImageSharp" Version="2.27.14" />
   </ItemGroup>
 
+	<ItemGroup>
+		<None Include="Shaders/**" CopyToOutputDirectory="PreserveNewest" />
+		<None Include="Resources/**" CopyToOutputDirectory="PreserveNewest" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Physics\" />
+	</ItemGroup>
+	
 </Project>
