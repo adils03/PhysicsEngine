@@ -21,6 +21,13 @@ namespace PhysicsEngine.Shapes
             LoadTexture();
             CreateBuffers();
         }
+        public TexturedCube(string texturePath1)
+        {
+            AssignVerticesIndices();
+            LoadTexture(texturePath1);
+            CreateBuffers();
+        }
+
         protected override void AssignVerticesIndices()
         {
             float X = base.Transform.Scale.X / 2;
@@ -99,7 +106,6 @@ namespace PhysicsEngine.Shapes
         {
             base.diffuseMap = Texture.LoadFromFile(diffuseMapPath);
             base.specularMap = Texture.LoadFromFile(specularMapPath);
-
         }
 
     }

@@ -29,8 +29,8 @@ namespace PhysicsEngine
             var _input = KeyboardState;
             if(_input.IsKeyDown(Keys.Q))
             {
-                //cube.Translate(new Vector3(0, 0, 10) * (float)e.Time);
-                cube.Rotate(new Vector3(90,0,0) * (float)e.Time);
+                cube.Translate(new Vector3(1, 1, 1) * (float)e.Time);
+                cube.Rotate(new Vector3(190,190,190) * (float)e.Time);
             }
         }
         protected override void OnRenderFrame(FrameEventArgs e)
