@@ -117,9 +117,13 @@ namespace PhysicsEngine.Shapes
         {
             Render(Vector3.Zero, cam, shader, false);
         }
-        protected virtual void CreateFaceNormals()
+        protected virtual void CreateFaceNormals(Vector3[] corners)
         {
            
+        }
+        protected virtual void AssignNormals()
+        {
+
         }
         public void Translate(Vector3 translateVector)
         {
@@ -146,9 +150,10 @@ namespace PhysicsEngine.Shapes
                 // Vertex pozisyonunu radyan cinsinden döndürme
                 Vector3 newPosition = Vector3.Transform(vertices[i].Position - Transform.Position, quaternion) + Transform.Position;
                 vertices[i].Position = newPosition;
-            }
-            GetFaceNormals();//update and assign normals
 
+                Vector3 newNormal = Vector3.Transform(vertices[i].Normal, quaternion);
+                vertices[i].Normal = newNormal;
+            }
 
         }
 

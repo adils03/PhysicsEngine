@@ -38,7 +38,7 @@ namespace PhysicsEngine.Shapes
               [4, 5, 1, 1, 0, 4]  // Alt yüz
             ];
 
-            CreateFaceNormals();
+            CreateFaceNormals(Corners);
 
             Vector2[] texCoords =
             {
@@ -70,11 +70,10 @@ namespace PhysicsEngine.Shapes
             }
             AssignNormals();
 
-          
         }
 
 
-        private void AssignNormals()
+        protected override void AssignNormals()
         {
             int vertexIndex = 0;
             int indexIndex = 0;
@@ -111,10 +110,8 @@ namespace PhysicsEngine.Shapes
             ];
             
         }
-        protected override void CreateFaceNormals()
+        protected override void CreateFaceNormals(Vector3[] corners)
         {
-            Vector3[] corners = this.Corners;
-
             Vector3[] normals = new Vector3[6];
             Vector3 ba = corners[0] - corners[1];
             Vector3 bc = corners[2] - corners[1];
