@@ -93,7 +93,7 @@ void main() {
      DirLight dirLight;
 
      dirLight.direction = vec3(-10.2, -10.0, -10.3);
-     dirLight.ambient =   vec3(0.2, 0.2, 0.2);
+     dirLight.ambient =   vec3(0.02, 0.02, 0.02);
      dirLight.diffuse =   vec3(0.4, 0.4, 0.4);
      dirLight.specular =  vec3(0.5, 0.5, 0.5);
 

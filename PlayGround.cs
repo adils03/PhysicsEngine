@@ -11,6 +11,7 @@ namespace PhysicsEngine
         TexturedCube cube;
         Vector3 lightPos = new Vector3(3,3,3);
         TexturedCube lamp;
+        Sphere sphere;
         public PlayGround(NativeWindowSettings settings) : base(settings)
         {
         }
@@ -20,6 +21,7 @@ namespace PhysicsEngine
             base.OnLoad();
             cube = new TexturedCube();
             lamp = new TexturedCube(lightPos,new Vector3(0.3f,0.3f,0.3f));
+            sphere = new Sphere(Vector3.Zero, 1, 15, Color4.Red);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -38,6 +40,7 @@ namespace PhysicsEngine
             base.OnRenderFrame(e);
             cube.RenderLighting(lightPos,cam,lightingShader);
             lamp.RenderObject(cam, objectShader);
+            sphere.RenderLighting(lightPos,cam, lightingShader);
             SwapBuffers();
         }
     }

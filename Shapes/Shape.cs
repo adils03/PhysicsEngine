@@ -117,14 +117,6 @@ namespace PhysicsEngine.Shapes
         {
             Render(Vector3.Zero, cam, shader, false);
         }
-        protected virtual void CreateFaceNormals(Vector3[] corners)
-        {
-           
-        }
-        protected virtual void AssignNormals()
-        {
-
-        }
         public void Translate(Vector3 translateVector)
         {
             for (int i = 0; i < vertices.Length; i++)
