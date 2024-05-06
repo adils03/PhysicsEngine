@@ -21,6 +21,9 @@ namespace PhysicsEngine
             cameraHelper = new CameraHelper(Size);
             cam = cameraHelper.GetCamera();
             CursorState = CursorState.Grabbed;
+
+            objectShader = new ShaderProgram("Shaders/Shader.vert", "Shaders/Shader.frag");
+            lightingShader = new ShaderProgram("Shaders/Shader.vert", "Shaders/Lighting.frag");
         }
 
         protected override void OnLoad()
@@ -30,8 +33,7 @@ namespace PhysicsEngine
             GL.Enable(EnableCap.DepthTest);
             IsVisible = true;
 
-            objectShader = new ShaderProgram("Shaders/Shader.vert", "Shaders/Shader.frag");
-            lightingShader = new ShaderProgram("Shaders/Shader.vert", "Shaders/Lighting.frag");
+           
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)

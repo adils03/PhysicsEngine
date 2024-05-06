@@ -4,7 +4,17 @@ using PhysicsEngine.Common;
 using OpenTK.Graphics.OpenGL4;
 
 namespace PhysicsEngine.Shapes
-{
+{    
+    public struct PointLight
+    {
+        public Vector3 position;
+        public float constant;
+        public float linear;
+        public float quadratic;
+        public Vector3 ambient;
+        public Vector3 diffuse;
+        public Vector3 specular;
+    }
     public class Transform
     {
         public Vector3 Position;
@@ -68,8 +78,7 @@ namespace PhysicsEngine.Shapes
         {
         }
 
-
-        protected void Render(Vector3 lightPos, Camera cam, ShaderProgram shader, bool lighting = false)
+        protected void Render(PointLight[] pointLights, Camera cam, ShaderProgram shader, bool lighting = false)
         {
             shader.Use();
 
@@ -77,7 +86,8 @@ namespace PhysicsEngine.Shapes
                 diffuseMap.Use(TextureUnit.Texture0);
             else
                 specularMap.Use(TextureUnit.Texture1);
-            vertexBuffer.SetData(vertices, vertices.Length);
+
+            vertexBuffer.SetData(vertices, vertices.Length);//translate için
             GL.BindVertexArray(vertexArray.VertexArrayHandle);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer.IndexBufferHandle);
 
@@ -85,8 +95,16 @@ namespace PhysicsEngine.Shapes
             shader.SetUniform("view", cam.GetViewMatrix());
             shader.SetUniform("projection", cam.GetProjectionMatrix());
 
+
             if (lighting)
             {
+
+                //gün ışığı
+                shader.SetUniform("dirLight.direction", new Vector3(1.0f));
+                shader.SetUniform("dirLight.ambient", new Vector3(0.3f));
+                shader.SetUniform("dirLight.diffuse", new Vector3(0.3f));
+                shader.SetUniform("dirLight.specular", new Vector3(0.0f));
+
                 shader.SetUniform("material.diffuse", 0);
                 shader.SetUniform("material.specular", 1);
                 shader.SetUniform("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
@@ -94,11 +112,20 @@ namespace PhysicsEngine.Shapes
 
                 shader.SetUniform("viewPos", cam.Position);
 
-                shader.SetUniform("light.position", lightPos);
-                shader.SetUniform("light.ambient", new Vector3(0.2f));
-                shader.SetUniform("light.diffuse", new Vector3(0.5f));
-                shader.SetUniform("light.specular", new Vector3(1.0f));
-                shader.SetUniform("light.constant", new Vector3(1.0f));
+
+                // pointLights
+                for (int i = 0; i < pointLights.Length; i++)
+                {
+                    shader.SetUniform($"pointLights[{i}].constant", 1.0f);
+                    shader.SetUniform($"pointLights[{i}].linear", 0.09f);
+                    shader.SetUniform($"pointLights[{i}].quadratic", 0.032f);
+
+
+                    shader.SetUniform($"pointLights[{i}].position", pointLights[i].position);
+                    shader.SetUniform($"pointLights[{i}].ambient", new Vector3(0.5f));
+                    shader.SetUniform($"pointLights[{i}].diffuse", new Vector3(2.5f));
+                    shader.SetUniform($"pointLights[{i}].specular", new Vector3(5.0f));
+                }
             }
             else
             {
@@ -108,14 +135,13 @@ namespace PhysicsEngine.Shapes
             GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
         }
 
-        public void RenderLighting(Vector3 lightPos, Camera cam, ShaderProgram lightingShader)
+        public void RenderLighting(PointLight[] pointLights, Camera cam, ShaderProgram lightingShader)
         {
-            Render(lightPos, cam, lightingShader, true);
+            Render(pointLights, cam, lightingShader, true);
         }
-
         public void RenderObject(Camera cam, ShaderProgram shader)
         {
-            Render(Vector3.Zero, cam, shader, false);
+            Render(new PointLight[4], cam, shader, false);
         }
         public void Translate(Vector3 translateVector)
         {
