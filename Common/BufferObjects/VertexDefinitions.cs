@@ -1,7 +1,7 @@
 ﻿using System;
 using OpenTK.Mathematics;
 
-namespace PhysicsEngine.Common.BufferObjects
+namespace PhysicsEngine
 {
     public readonly struct VertexAttribute
     {

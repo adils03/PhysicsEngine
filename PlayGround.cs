@@ -1,7 +1,6 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using PhysicsEngine.Shapes;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace PhysicsEngine
@@ -21,8 +20,8 @@ namespace PhysicsEngine
 
         Sphere[] lampObjects = new Sphere[4];
 
-        TexturedCube cube;
-        TexturedCube lamp;
+        Cube cube;
+        Cube lamp;
 
         Sphere sphere;
         public PlayGround(NativeWindowSettings settings) : base(settings)
@@ -32,7 +31,7 @@ namespace PhysicsEngine
         protected override void OnLoad()
         {
             base.OnLoad();
-            cube = new TexturedCube();
+            cube = new Cube();
             sphere = new Sphere(Vector3.Zero, 1, 15, Color4.Red);
 
             for (int i = 0; i < lampObjects.Length; i++)
@@ -66,8 +65,8 @@ namespace PhysicsEngine
             var _input = KeyboardState;
             if(_input.IsKeyDown(Keys.Q))
             {
-                cube.Translate(new Vector3(1, 1, 1) * (float)e.Time);
-                cube.Rotate(new Vector3(190,190,190) * (float)e.Time);
+                cube.Teleport(new Vector3(3, 3,3));
+                //cube.Rotate(new Vector3(190,190,190) * (float)e.Time);
             }
         }
         protected override void OnRenderFrame(FrameEventArgs e)

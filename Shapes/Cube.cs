@@ -1,12 +1,11 @@
-﻿using PhysicsEngine.Common.BufferObjects;
-using OpenTK.Mathematics;
-using PhysicsEngine.Common;
+﻿using OpenTK.Mathematics;
 
-namespace PhysicsEngine.Shapes
+namespace PhysicsEngine
 {
-    internal class TexturedCube : Shape
+    public class Cube : Shape
     {
-        public TexturedCube(Vector3 position, Vector3 scale)
+        Vector3[] corners;
+        public Cube(Vector3 position, Vector3 scale)
         {
             base.Transform.Position = position;
             base.Transform.Scale = scale;
@@ -15,13 +14,13 @@ namespace PhysicsEngine.Shapes
             LoadTexture();
             CreateBuffers();
         }
-        public TexturedCube()
+        public Cube()
         {
             AssignVerticesIndices();
             LoadTexture();
             CreateBuffers();
         }
-        public TexturedCube(string texturePath1)
+        public Cube(string texturePath1)
         {
             AssignVerticesIndices();
             LoadTexture(texturePath1);
@@ -30,23 +29,7 @@ namespace PhysicsEngine.Shapes
 
         protected override void AssignVerticesIndices()
         {
-            float X = base.Transform.Scale.X / 2;
-            float Y = base.Transform.Scale.Y / 2;
-            float Z = base.Transform.Scale.Z / 2;
-
-            Vector3 position = base.Transform.Position;
-
-            Vector3[] corners =
-            {
-                   position + new Vector3(-X, -Y, -Z), // 0
-                   position + new Vector3( X, -Y, -Z), // 1
-                   position + new Vector3( X,  Y, -Z), // 2
-                   position + new Vector3(-X,  Y, -Z), // 3
-                   position + new Vector3(-X, -Y,  Z), // 4
-                   position + new Vector3( X, -Y,  Z), // 5
-                   position + new Vector3( X,  Y,  Z), // 6
-                   position + new Vector3(-X,  Y,  Z)  // 7
-            };
+            AssignVertices();
 
             int[][] faceIndices =
             {
@@ -83,8 +66,8 @@ namespace PhysicsEngine.Shapes
 
             //Texture defaultTexture = Texture.LoadFromFile("Resources/container.png");
 
-            vertices = new VertexPositionNormalTexture[faceIndices.Length * 6];
-            indices = new int[faceIndices.Length * 6];
+            Vertices = new VertexPositionNormalTexture[faceIndices.Length * 6];
+            Indices = new int[faceIndices.Length * 6];
 
             int vertexIndex = 0;
             int indexIndex = 0;
@@ -95,13 +78,41 @@ namespace PhysicsEngine.Shapes
 
                 for (int j = 0; j < face.Length; j++)
                 {
-                    vertices[vertexIndex] = new VertexPositionNormalTexture(corners[face[j]], normals[i], texCoords[j]);
-                    indices[indexIndex++] = vertexIndex++;
+                    Vertices[vertexIndex] = new VertexPositionNormalTexture(corners[face[j]], normals[i], texCoords[j]);
+                    Indices[indexIndex++] = vertexIndex++;
                 }
             }
 
             //texture = defaultTexture;
         }
+        private void AssignVertices()
+        {
+            float X = base.Transform.Scale.X / 2;
+            float Y = base.Transform.Scale.Y / 2;
+            float Z = base.Transform.Scale.Z / 2;
+
+            Vector3 position = base.Transform.Position;
+
+            corners = new Vector3[]
+            {
+                   position + new Vector3(-X, -Y, -Z), // 0
+                   position + new Vector3( X, -Y, -Z), // 1
+                   position + new Vector3( X,  Y, -Z), // 2
+                   position + new Vector3(-X,  Y, -Z), // 3
+                   position + new Vector3(-X, -Y,  Z), // 4
+                   position + new Vector3( X, -Y,  Z), // 5
+                   position + new Vector3( X,  Y,  Z), // 6
+                   position + new Vector3(-X,  Y,  Z)  // 7
+            };
+            
+        }
+
+        public override Vector3[]? GetVertices()
+        {
+            AssignVertices();
+            return corners;
+        }
+
         protected override void LoadTexture(string diffuseMapPath = "Resources/container2.png", string specularMapPath = "Resources/container2_specular.png")
         {
             base.diffuseMap = Texture.LoadFromFile(diffuseMapPath);

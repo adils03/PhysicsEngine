@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 
 
-namespace PhysicsEngine.Common.BufferObjects
+namespace PhysicsEngine
 {
     public sealed class VertexArray : IDisposable
     {

@@ -1,9 +1,7 @@
 ﻿using OpenTK.Mathematics;
-using PhysicsEngine.Common.BufferObjects;
-using PhysicsEngine.Common;
 using OpenTK.Graphics.OpenGL4;
 
-namespace PhysicsEngine.Shapes
+namespace PhysicsEngine
 {    
     public struct PointLight
     {
@@ -35,13 +33,17 @@ namespace PhysicsEngine.Shapes
         protected VertexBuffer vertexBuffer;
         protected IndexBuffer indexBuffer;
 
-        protected VertexPositionNormalTexture[] vertices;
-        protected int[] indices;
+        protected VertexPositionNormalTexture[] Vertices;
+        protected Vector3[] Corners;
+        protected Vector3[] Normals;
+
+
+        protected int[] Indices;
 
         protected Texture diffuseMap;
         protected Texture specularMap;
 
-        protected Transform Transform = new Transform();
+        public Transform Transform = new Transform();
 
         public Shape()
         {
@@ -61,13 +63,18 @@ namespace PhysicsEngine.Shapes
 
         protected void CreateBuffers()
         {
-            vertexBuffer = new VertexBuffer(VertexPositionNormalTexture.VertexInfo, vertices.Length, true);
-            vertexBuffer.SetData(vertices, vertices.Length);
+            vertexBuffer = new VertexBuffer(VertexPositionNormalTexture.VertexInfo, Vertices.Length, true);
+            vertexBuffer.SetData(Vertices, Vertices.Length);
 
-            indexBuffer = new IndexBuffer(indices.Length, true);
-            indexBuffer.SetData(indices, indices.Length);
+            indexBuffer = new IndexBuffer(Indices.Length, true);
+            indexBuffer.SetData(Indices, Indices.Length);
 
             vertexArray = new VertexArray(vertexBuffer);
+        }
+
+        protected virtual void UpdateNormals()
+        {
+
         }
 
         protected virtual void AssignVerticesIndices()
@@ -87,7 +94,7 @@ namespace PhysicsEngine.Shapes
             else
                 specularMap.Use(TextureUnit.Texture1);
 
-            vertexBuffer.SetData(vertices, vertices.Length);//translate için
+            vertexBuffer.SetData(Vertices, Vertices.Length);//translate için
             GL.BindVertexArray(vertexArray.VertexArrayHandle);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer.IndexBufferHandle);
 
@@ -132,7 +139,7 @@ namespace PhysicsEngine.Shapes
                 shader.SetUniform("Color", new Vector3(1f, 1f, 1f));
             }
 
-            GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, 0);
+            GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
         }
 
         public void RenderLighting(PointLight[] pointLights, Camera cam, ShaderProgram lightingShader)
@@ -145,9 +152,9 @@ namespace PhysicsEngine.Shapes
         }
         public void Translate(Vector3 translateVector)
         {
-            for (int i = 0; i < vertices.Length; i++)
+            for (int i = 0; i < Vertices.Length; i++)
             {
-                vertices[i].Position += translateVector;
+                Vertices[i].Position += translateVector;
             }
             Transform.Position += translateVector;
         }
@@ -163,17 +170,32 @@ namespace PhysicsEngine.Shapes
 
             Transform.Rotation = quaternion;
 
-            for (int i = 0; i < vertices.Length; i++)
+            for (int i = 0; i < Vertices.Length; i++)
             {
                 // Vertex pozisyonunu radyan cinsinden döndürme
-                Vector3 newPosition = Vector3.Transform(vertices[i].Position - Transform.Position, quaternion) + Transform.Position;
-                vertices[i].Position = newPosition;
+                Vector3 newPosition = Vector3.Transform(Vertices[i].Position - Transform.Position, quaternion) + Transform.Position;
+                Vertices[i].Position = newPosition;
 
-                Vector3 newNormal = Vector3.Transform(vertices[i].Normal, quaternion);
-                vertices[i].Normal = newNormal;
+                Vector3 newNormal = Vector3.Transform(Vertices[i].Normal, quaternion);
+                Vertices[i].Normal = newNormal;
             }
 
         }
+        public void Teleport(Vector3 point)
+        {
+            Vector3 offset = point - Transform.Position;
 
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                Vertices[i].Position += offset;
+            }
+
+            Transform.Position = point;
+        }
+
+        public virtual Vector3[]? GetVertices()
+        {
+            return null;
+        }
     }
 }

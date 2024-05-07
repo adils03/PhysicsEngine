@@ -1,13 +1,6 @@
 ﻿using OpenTK.Mathematics;
-using PhysicsEngine.Common;
-using PhysicsEngine.Common.BufferObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace PhysicsEngine.Shapes
+namespace PhysicsEngine
 {
     public class Sphere : Shape
     {
@@ -39,8 +32,8 @@ namespace PhysicsEngine.Shapes
             int totalIndices = verticalSegments * horizontalSegments * 6;
 
             //Vertex ve İndis dizileri
-            vertices = new VertexPositionNormalTexture[totalVertices];
-            indices = new int[totalIndices];
+            Vertices = new VertexPositionNormalTexture[totalVertices];
+            Indices = new int[totalIndices];
 
             //Küre yüzeyinin oluşturulması
             for (int i = 0; i <= verticalSegments; i++)
@@ -63,7 +56,7 @@ namespace PhysicsEngine.Shapes
                     float _z = sinLong * cosLat;
 
                     //Kürenin her bir noktası için renk ataması 
-                    vertices[vertexCount] = new VertexPositionNormalTexture(new Vector3(_x * radius + Transform.Position.X, _y * radius + Transform.Position.Y, _z * radius + Transform.Position.Z),Vector3.Zero,Vector2.Zero);
+                    Vertices[vertexCount] = new VertexPositionNormalTexture(new Vector3(_x * radius + Transform.Position.X, _y * radius + Transform.Position.Y, _z * radius + Transform.Position.Z),Vector3.Zero,Vector2.Zero);
                     vertexCount++;
                 }
 
@@ -79,13 +72,13 @@ namespace PhysicsEngine.Shapes
                     int index1 = index0 + horizontalSegments + 1;
 
                     //İndisler belirlenir ve indis dizisine atanır
-                    indices[indexCount++] = index0;
-                    indices[indexCount++] = index1;
-                    indices[indexCount++] = index0 + 1;
+                    Indices[indexCount++] = index0;
+                    Indices[indexCount++] = index1;
+                    Indices[indexCount++] = index0 + 1;
 
-                    indices[indexCount++] = index1;
-                    indices[indexCount++] = index1 + 1;
-                    indices[indexCount++] = index0 + 1;
+                    Indices[indexCount++] = index1;
+                    Indices[indexCount++] = index1 + 1;
+                    Indices[indexCount++] = index0 + 1;
                 }
 
             }
@@ -93,14 +86,14 @@ namespace PhysicsEngine.Shapes
         }
         public void Normal()
         {
-            for (int i = 0; i < vertices.Length; i++)
+            for (int i = 0; i < Vertices.Length; i++)
             {
-                Vector3 normal = vertices[i].Position - Transform.Position;
-                vertices[i].Normal = normal;
+                Vector3 normal = Vertices[i].Position - Transform.Position;
+                Vertices[i].Normal = normal;
             }
 
         }
-        protected override void LoadTexture(string diffuseMapPath = "Resources/container2.png", string specularMapPath = "Resources/container2_specular.png")
+        protected override void LoadTexture(string diffuseMapPath = "Resources/green.png", string specularMapPath = "Resources/container2_specular.png")
         {
             base.diffuseMap = Texture.LoadFromFile(diffuseMapPath);
             base.specularMap = Texture.LoadFromFile(specularMapPath);

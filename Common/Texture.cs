@@ -2,7 +2,7 @@
 using StbImageSharp;
 
 
-namespace PhysicsEngine.Common
+namespace PhysicsEngine
 {
     public class Texture
     {
