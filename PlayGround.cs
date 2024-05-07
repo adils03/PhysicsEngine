@@ -21,6 +21,7 @@ namespace PhysicsEngine
         Sphere[] lampObjects = new Sphere[4];
 
         Cube cube;
+        Cube cube2;
         Cube lamp;
 
         Sphere sphere;
@@ -32,11 +33,12 @@ namespace PhysicsEngine
         {
             base.OnLoad();
             cube = new Cube();
+            cube2 = new Cube();
             sphere = new Sphere(Vector3.Zero, 1, 15, Color4.Red);
 
             for (int i = 0; i < lampObjects.Length; i++)
             {
-                lampObjects[i] = new Sphere(_pointLightPositions[i], 0.2f , 15, Color4.Red);
+                lampObjects[i] = new Sphere(_pointLightPositions[i], 0.2f, 15, Color4.Red);
             }
             // Aynı özelliklere sahip bir ışık oluşturma
             PointLight sharedLight = new PointLight()
@@ -63,16 +65,99 @@ namespace PhysicsEngine
             base.OnUpdateFrame(e);
 
             var _input = KeyboardState;
-            if(_input.IsKeyDown(Keys.Q))
+            float dx = 0;
+            float dy = 0;
+            float dz = 0;
+            if (_input.IsKeyDown(Keys.Up))
             {
-                cube.Teleport(new Vector3(3, 3,3));
+                dz--;
+
+            }
+            if (_input.IsKeyDown(Keys.Left))
+            {
+                dx--;
+            }
+            if (_input.IsKeyDown(Keys.Right))
+            {
+                dx++;
+            }
+            if (_input.IsKeyDown(Keys.Down))
+            {
+                dz++;
+
+            }
+            if (_input.IsKeyDown(Keys.KeyPad2))
+            {
+                dy--;
+
+            }
+            if (_input.IsKeyDown(Keys.KeyPad8))
+            {
+                dy++;
+
+            }
+            if (_input.IsKeyPressed(Keys.R))
+            {
+
+                cube.Rotate(new Vector3(45, 0, 0));
+            }
+            if (_input.IsKeyPressed(Keys.Q))
+            {
+                cube.Teleport(new Vector3(3, 3, 3));
+                Vector3[] normals = cube.GetNormals();
+                for (int i = 0; i < normals.Length; i++)
+                {
+                    Console.WriteLine(normals[i]);
+                }
                 //cube.Rotate(new Vector3(190,190,190) * (float)e.Time);
             }
+            cube.Translate(new Vector3(dx, dy, dz) * (float)e.Time);
+
+            float _dx = 0;
+            float _dy = 0;
+            float _dz = 0;
+            if (_input.IsKeyDown(Keys.I))
+            {
+                _dz--;
+
+            }
+            if (_input.IsKeyDown(Keys.J))
+            {
+                _dx--;
+            }
+            if (_input.IsKeyDown(Keys.L))
+            {
+                _dx++;
+            }
+            if (_input.IsKeyDown(Keys.K))
+            {
+                _dz++;
+
+            }
+            if (_input.IsKeyDown(Keys.U))
+            {
+                _dy--;
+
+            }
+            if (_input.IsKeyDown(Keys.O))
+            {
+                _dy++;
+
+            }
+            cube2.Translate(new Vector3(_dx, _dy, _dz) * (float)e.Time);
+
+            if (Collisions.IntersectCubes(cube, cube2, 0f, out Vector3 normal, out float depth))
+            {
+                cube.Translate(-normal * depth / 2);
+                cube2.Translate(normal * depth / 2);
+            }
+
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-            cube.RenderLighting(pointLights, cam,lightingShader);
+            cube.RenderLighting(pointLights, cam, lightingShader);
+            cube2.RenderLighting(pointLights, cam, lightingShader);
 
             for (int i = 0; i < pointLights.Length; i++)
             {

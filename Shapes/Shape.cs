@@ -33,7 +33,7 @@ namespace PhysicsEngine
         protected VertexBuffer vertexBuffer;
         protected IndexBuffer indexBuffer;
 
-        protected VertexPositionNormalTexture[] Vertices;
+        public VertexPositionNormalTexture[] Vertices;
         protected Vector3[] Corners;
         protected Vector3[] Normals;
 
@@ -196,6 +196,10 @@ namespace PhysicsEngine
         public virtual Vector3[]? GetVertices()
         {
             return null;
+        }
+        public virtual Vector3[]? GetNormals()
+        {
+            return null;    
         }
     }
 }

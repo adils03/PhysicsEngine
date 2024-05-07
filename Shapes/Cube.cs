@@ -112,6 +112,16 @@ namespace PhysicsEngine
             AssignVertices();
             return corners;
         }
+        public override Vector3[]? GetNormals()
+        {
+            Vector3[] normals = new Vector3[6];
+            int normalIndex = 0;
+            for (int i = 0; i < Vertices.Length; i+=6)
+            {
+                normals[normalIndex++] = Vertices[i].Normal;
+            }
+            return normals;
+        }
 
         protected override void LoadTexture(string diffuseMapPath = "Resources/container2.png", string specularMapPath = "Resources/container2_specular.png")
         {

@@ -8,70 +8,31 @@ namespace PhysicsEngine
         {
             normal = Vector3.Zero;
             depth = float.MaxValue;
+
             Vector3[] verticesA = shapeA.GetVertices();
             Vector3[] verticesB = shapeB.GetVertices();
+
             List<Vector3> axises = [];
-            Vector3 abA = verticesA[1] - verticesA[0];
-            Vector3 adA = verticesA[3] - verticesA[0];
-            Vector3 aeA = verticesA[4] - verticesA[0];
-            Vector3 faceNormalA1 = Vector3.Cross(abA, adA); axises.Add(faceNormalA1);
-            Vector3 faceNormalA2 = Vector3.Cross(aeA, abA); axises.Add(faceNormalA2);
-            Vector3 faceNormalA3 = Vector3.Cross(adA, aeA); axises.Add(faceNormalA3);
-            Vector3 abB = verticesB[1] - verticesB[0];
-            Vector3 adB = verticesB[3] - verticesB[0];
-            Vector3 aeB = verticesB[4] - verticesB[0];
-            Vector3 faceNormalB1 = Vector3.Cross(abB, adB); axises.Add(faceNormalB1);
-            Vector3 faceNormalB2 = Vector3.Cross(aeB, abB); axises.Add(faceNormalB2);
-            Vector3 faceNormalB3 = Vector3.Cross(adB, aeB); axises.Add(faceNormalB3);
+            Vector3[] faceNormalsA = shapeA.GetNormals();
+            Vector3[] faceNormalsB = shapeB.GetNormals();
+
+            Vector3 faceNormalA1 = faceNormalsA[0];
+            Vector3 faceNormalA2 = faceNormalsA[2];
+            Vector3 faceNormalA3 = faceNormalsA[4];
+
+            Vector3 faceNormalB1 = faceNormalsB[0];
+            Vector3 faceNormalB2 = faceNormalsB[2];
+            Vector3 faceNormalB3 = faceNormalsB[4];
+
             AddAxis(axises, faceNormalA1, faceNormalB1);
-
-            Vector3 faceNormalCrossA1B2 = Vector3.Cross(faceNormalA1, faceNormalB2).Normalized();
-            if (faceNormalCrossA1B2.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA1B2);
-            }
-
-            Vector3 faceNormalCrossA1B3 = Vector3.Cross(faceNormalA1, faceNormalB3).Normalized();
-            if (faceNormalCrossA1B3.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA1B3);
-            }
-
-            Vector3 faceNormalCrossA2B1 = Vector3.Cross(faceNormalA2, faceNormalB1).Normalized();
-            if (faceNormalCrossA2B1.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA2B1);
-            }
-
-            Vector3 faceNormalCrossA2B2 = Vector3.Cross(faceNormalA2, faceNormalB2).Normalized();
-            if (faceNormalCrossA2B2.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA2B2);
-            }
-
-            Vector3 faceNormalCrossA2B3 = Vector3.Cross(faceNormalA2, faceNormalB3).Normalized();
-            if (faceNormalCrossA2B3.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA2B3);
-            }
-
-            Vector3 faceNormalCrossA3B1 = Vector3.Cross(faceNormalA3, faceNormalB1).Normalized();
-            if (faceNormalCrossA3B1.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA3B1);
-            }
-
-            Vector3 faceNormalCrossA3B2 = Vector3.Cross(faceNormalA3, faceNormalB2).Normalized();
-            if (faceNormalCrossA3B2.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA3B2);
-            }
-
-            Vector3 faceNormalCrossA3B3 = Vector3.Cross(faceNormalA3, faceNormalB3).Normalized();
-            if (faceNormalCrossA3B3.Length < 1.01f)
-            {
-                axises.Add(faceNormalCrossA3B3);
-            }
+            AddAxis(axises, faceNormalA1, faceNormalB2);
+            AddAxis(axises, faceNormalA1, faceNormalB3);
+            AddAxis(axises, faceNormalA2, faceNormalB1);
+            AddAxis(axises, faceNormalA2, faceNormalB2);
+            AddAxis(axises, faceNormalA2, faceNormalB3);
+            AddAxis(axises, faceNormalA3, faceNormalB1);
+            AddAxis(axises, faceNormalA3, faceNormalB2);
+            AddAxis(axises, faceNormalA3, faceNormalB3);
 
             foreach (Vector3 axis in axises)
             {
