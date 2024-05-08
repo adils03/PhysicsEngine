@@ -24,7 +24,7 @@ namespace PhysicsEngine
             base.OnLoad();
             cube = new Cube(); ShapeList.Add(cube);
             cube2 = new Cube(); ShapeList.Add(cube2);
-            Sphere sphere = new Sphere(Vector3.Zero, 1, 15, Color4.Red); ShapeList.Add(sphere);
+            //Sphere sphere = new Sphere(Vector3.Zero, 1, 15, Color4.Red); ShapeList.Add(sphere);
 
             cubeRed = new Cube(new Vector3(10,10,10),new Vector3(3));
 

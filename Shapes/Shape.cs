@@ -199,6 +199,13 @@ namespace PhysicsEngine
                 Vertices[i].Position += translateVector;
             }
             Transform.Position += translateVector;
+
+            for (int i = 0; i <Corners.Length; i++)
+            {
+                Corners[i] += translateVector;
+            }
+
+
         }
         public void Rotate(Vector3 rotateVector)
         {
@@ -218,8 +225,16 @@ namespace PhysicsEngine
                 Vector3 newPosition = Vector3.Transform(Vertices[i].Position - Transform.Position, quaternion) + Transform.Position;
                 Vertices[i].Position = newPosition;
 
+                
+
                 Vector3 newNormal = Vector3.Transform(Vertices[i].Normal, quaternion);
                 Vertices[i].Normal = newNormal;
+
+            }
+            for (int i = 0; i <Corners.Length; i++)
+            {
+                Vector3 newPosition = Vector3.Transform(Corners[i] - Transform.Position, quaternion) + Transform.Position;
+                Corners[i] = newPosition;
             }
 
         }
@@ -230,6 +245,12 @@ namespace PhysicsEngine
             for (int i = 0; i < Vertices.Length; i++)
             {
                 Vertices[i].Position += offset;
+            }
+
+           
+            for (int i = 0; i <Corners.Length; i++)
+            {
+                Corners[i] += offset;
             }
 
             Transform.Position = point;

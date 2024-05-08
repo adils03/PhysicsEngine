@@ -4,7 +4,7 @@ namespace PhysicsEngine
 {
     public class Cube : Shape
     {
-        Vector3[] corners;
+      
         public Cube(Vector3 position, Vector3 scale)
         {
             base.Transform.Position = position;
@@ -78,7 +78,7 @@ namespace PhysicsEngine
 
                 for (int j = 0; j < face.Length; j++)
                 {
-                    Vertices[vertexIndex] = new VertexPositionNormalTexture(corners[face[j]], normals[i], texCoords[j]);
+                    Vertices[vertexIndex] = new VertexPositionNormalTexture(Corners[face[j]], normals[i], texCoords[j]);
                     Indices[indexIndex++] = vertexIndex++;
                 }
             }
@@ -93,7 +93,7 @@ namespace PhysicsEngine
 
             Vector3 position = base.Transform.Position;
 
-            corners = new Vector3[]
+            Corners = new Vector3[]
             {
                    position + new Vector3(-X, -Y, -Z), // 0
                    position + new Vector3( X, -Y, -Z), // 1
@@ -109,8 +109,7 @@ namespace PhysicsEngine
 
         public override Vector3[]? GetVertices()
         {
-            AssignVertices();
-            return corners;
+            return Corners;
         }
         public override Vector3[]? GetNormals()
         {
