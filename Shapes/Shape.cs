@@ -142,6 +142,48 @@ namespace PhysicsEngine
             GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
         }
 
+
+        public void RenderColorLighting(PointLight[] pointLights, Camera cam, ShaderProgram shader,Vector3 color)
+        {
+            shader.Use();          
+
+            vertexBuffer.SetData(Vertices, Vertices.Length);//translate için
+            GL.BindVertexArray(vertexArray.VertexArrayHandle);
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer.IndexBufferHandle);
+
+            shader.SetUniform("model", Matrix4.Identity);
+            shader.SetUniform("view", cam.GetViewMatrix());
+            shader.SetUniform("projection", cam.GetProjectionMatrix());
+
+            //gün ışığı
+            shader.SetUniform("dirLight.direction", new Vector3(1.0f));
+            shader.SetUniform("dirLight.ambient", new Vector3(0.3f));
+            shader.SetUniform("dirLight.diffuse", new Vector3(0.3f));
+            shader.SetUniform("dirLight.specular", new Vector3(0.0f));
+
+            shader.SetUniform("material.shininess", 32.0f);
+
+            shader.SetUniform("viewPos", cam.Position);
+            shader.SetUniform("objectColor", color);
+
+            // pointLights
+            for (int i = 0; i < pointLights.Length; i++)
+            {
+                shader.SetUniform($"pointLights[{i}].constant", 1.0f);
+                shader.SetUniform($"pointLights[{i}].linear", 0.09f);
+                shader.SetUniform($"pointLights[{i}].quadratic", 0.032f);
+
+
+                shader.SetUniform($"pointLights[{i}].position", pointLights[i].position);
+                shader.SetUniform($"pointLights[{i}].ambient", new Vector3(0.5f));
+                shader.SetUniform($"pointLights[{i}].diffuse", new Vector3(2.5f));
+                shader.SetUniform($"pointLights[{i}].specular", new Vector3(5.0f));
+            }
+
+            GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
+
+        }
+
         public void RenderLighting(PointLight[] pointLights, Camera cam, ShaderProgram lightingShader)
         {
             Render(pointLights, cam, lightingShader, true);
