@@ -2,7 +2,7 @@
 using OpenTK.Graphics.OpenGL4;
 
 namespace PhysicsEngine
-{    
+{
     public struct PointLight
     {
         public Vector3 position;
@@ -26,9 +26,18 @@ namespace PhysicsEngine
             Scale = Vector3.One;
         }
     }
+    public enum ShapeShaderType
+    {
+        Lamp,
+        ColorLight,
+        Textured
+            
+    }
 
     public class Shape
     {
+        public ShapeShaderType ShaderType;
+
         protected VertexArray vertexArray;
         protected VertexBuffer vertexBuffer;
         protected IndexBuffer indexBuffer;
@@ -143,9 +152,9 @@ namespace PhysicsEngine
         }
 
 
-        public void RenderColorLighting(PointLight[] pointLights, Camera cam, ShaderProgram shader,Vector3 color)
+        public void RenderColorLighting(PointLight[] pointLights, Camera cam, ShaderProgram shader, Vector3 color)
         {
-            shader.Use();          
+            shader.Use();
 
             vertexBuffer.SetData(Vertices, Vertices.Length);//translate için
             GL.BindVertexArray(vertexArray.VertexArrayHandle);
@@ -183,7 +192,6 @@ namespace PhysicsEngine
             GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
 
         }
-
         public void RenderLighting(PointLight[] pointLights, Camera cam, ShaderProgram lightingShader)
         {
             Render(pointLights, cam, lightingShader, true);
@@ -200,10 +208,14 @@ namespace PhysicsEngine
             }
             Transform.Position += translateVector;
 
-            for (int i = 0; i <Corners.Length; i++)
+            if (Corners != null)
             {
-                Corners[i] += translateVector;
+                for (int i = 0; i < Corners.Length; i++)
+                {
+                    Corners[i] += translateVector;
+                }
             }
+
 
 
         }
@@ -225,17 +237,18 @@ namespace PhysicsEngine
                 Vector3 newPosition = Vector3.Transform(Vertices[i].Position - Transform.Position, quaternion) + Transform.Position;
                 Vertices[i].Position = newPosition;
 
-                
+
 
                 Vector3 newNormal = Vector3.Transform(Vertices[i].Normal, quaternion);
                 Vertices[i].Normal = newNormal;
 
             }
-            for (int i = 0; i <Corners.Length; i++)
-            {
-                Vector3 newPosition = Vector3.Transform(Corners[i] - Transform.Position, quaternion) + Transform.Position;
-                Corners[i] = newPosition;
-            }
+            if (Corners is not null)
+                for (int i = 0; i < Corners.Length; i++)
+                {
+                    Vector3 newPosition = Vector3.Transform(Corners[i] - Transform.Position, quaternion) + Transform.Position;
+                    Corners[i] = newPosition;
+                }
 
         }
         public void Teleport(Vector3 point)
@@ -247,11 +260,11 @@ namespace PhysicsEngine
                 Vertices[i].Position += offset;
             }
 
-           
-            for (int i = 0; i <Corners.Length; i++)
-            {
-                Corners[i] += offset;
-            }
+            if (Corners is not null)
+                for (int i = 0; i < Corners.Length; i++)
+                {
+                    Corners[i] += offset;
+                }
 
             Transform.Position = point;
         }
@@ -262,7 +275,7 @@ namespace PhysicsEngine
         }
         public virtual Vector3[]? GetNormals()
         {
-            return null;    
+            return null;
         }
     }
 }

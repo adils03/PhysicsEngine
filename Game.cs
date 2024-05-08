@@ -55,7 +55,7 @@ namespace PhysicsEngine
 
             for (int i = 0; i < lampObjects.Length; i++)
             {
-                lampObjects[i] = new Sphere(_pointLightPositions[i], 0.2f, 15, Color4.Red);
+                lampObjects[i] = new Sphere(_pointLightPositions[i], 0.2f, 15, Color4.Red,ShapeShaderType.Lamp);
             }
             // Aynı özelliklere sahip bir ışık oluşturma
             PointLight sharedLight = new PointLight()

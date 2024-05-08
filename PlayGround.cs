@@ -12,8 +12,9 @@ namespace PhysicsEngine
 
         Cube cube;
         Cube cube2;
-
+        Sphere sphere;
         Cube cubeRed;
+        PhysicsWorld world;
         public PlayGround(NativeWindowSettings settings) : base(settings)
         {
             ShapeList = new List<Shape>();
@@ -22,9 +23,10 @@ namespace PhysicsEngine
         protected override void OnLoad()
         {
             base.OnLoad();
+            world = new PhysicsWorld(PhysicsWorld.WORLD_GRAVITY);
             cube = new Cube(); ShapeList.Add(cube);
-            cube2 = new Cube(); ShapeList.Add(cube2);
-            //Sphere sphere = new Sphere(Vector3.Zero, 1, 15, Color4.Red); ShapeList.Add(sphere);
+            //cube2 = new Cube(); ShapeList.Add(cube2);
+            sphere = new Sphere(Vector3.One, 1, 15, Color4.Red); ShapeList.Add(sphere);
 
             cubeRed = new Cube(new Vector3(10,10,10),new Vector3(3));
 
@@ -34,17 +36,17 @@ namespace PhysicsEngine
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-
+            world.Update((float)e.Time,1);
             var _input = KeyboardState;
 
             ShapeController.ControllerA(_input,cube,e);
-            ShapeController.ControllerB(_input,cube2,e);
+            //ShapeController.ControllerB(_input,cube2,e);
         
             //çarpışma
-            if (Collisions.IntersectCubes(cube, cube2, 0.02f, out Vector3 normal, out float depth))
+            if (Collisions.IntersectCubeSphere(true,cube, sphere, 0, out Vector3 normal, out float depth))
             {
                 cube.Translate(-normal * depth / 2);
-                cube2.Translate(normal * depth / 2);
+                sphere.Translate(normal * depth / 2);
             }
         }
         protected override void OnRenderFrame(FrameEventArgs e)

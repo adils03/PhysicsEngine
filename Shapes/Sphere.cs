@@ -8,12 +8,13 @@ namespace PhysicsEngine
         private int segments;
         private Color4 color;
 
-        public Sphere(Vector3 position, float radius, int segments, Color4 color)
+        public Sphere(Vector3 position, float radius, int segments, Color4 color, ShapeShaderType type)
         {
             Transform.Position = position;
             this.radius = radius;
             this.segments = segments;
             this.color = color;
+            Corners = null;
             SphereAssignVerticesAndIndices();
             Normal();
             LoadTexture();
