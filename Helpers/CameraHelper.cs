@@ -12,7 +12,7 @@ namespace PhysicsEngine
         private Vector2 _lastPos;
         public CameraHelper(Vector2i Size)
         {
-            _camera = new Camera(Vector3.UnitZ * 3, Size.X / (float)Size.Y);
+            _camera = CameraFactory.GetCam();
         }
         public void CamControl(KeyboardState input, MouseState mouse, FrameEventArgs e)
         {

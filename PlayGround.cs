@@ -18,17 +18,18 @@ namespace PhysicsEngine
         public PlayGround(NativeWindowSettings settings) : base(settings)
         {
             ShapeList = new List<Shape>();
+            cube = new Cube(ShapeShaderType.Textured);
         }
 
         protected override void OnLoad()
         {
             base.OnLoad();
-            world = new PhysicsWorld(PhysicsWorld.WORLD_GRAVITY);
-            cube = new Cube(); ShapeList.Add(cube);
-            //cube2 = new Cube(); ShapeList.Add(cube2);
-            sphere = new Sphere(Vector3.One, 1, 15, Color4.Red); ShapeList.Add(sphere);
+            //world = new PhysicsWorld(PhysicsWorld.WORLD_GRAVITY);
+            //cube = new Cube(); ShapeList.Add(cube);
+            ////cube2 = new Cube(); ShapeList.Add(cube2);
+            //sphere = new Sphere(Vector3.One, 1, 15, new Vector3(1)); ShapeList.Add(sphere);
 
-            cubeRed = new Cube(new Vector3(10,10,10),new Vector3(3));
+            //cubeRed = new Cube(new Vector3(10,10,10),new Vector3(3));
 
 
         }
@@ -36,29 +37,31 @@ namespace PhysicsEngine
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-            world.Update((float)e.Time,1);
+            //world.Update((float)e.Time,1);
             var _input = KeyboardState;
 
-            ShapeController.ControllerA(_input,cube,e);
-            //ShapeController.ControllerB(_input,cube2,e);
+            //ShapeController.ControllerA(_input,cube,e);
+            ////ShapeController.ControllerB(_input,cube2,e);
         
-            //çarpışma
-            if (Collisions.IntersectCubeSphere(true,cube, sphere, 0, out Vector3 normal, out float depth))
-            {
-                cube.Translate(-normal * depth / 2);
-                sphere.Translate(normal * depth / 2);
-            }
+            ////çarpışma
+            //if (Collisions.IntersectCubeSphere(true,cube, sphere, 0, out Vector3 normal, out float depth))
+            //{
+            //    cube.Translate(-normal * depth / 2);
+            //    sphere.Translate(normal * depth / 2);
+            //}
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
 
-            for (int i = 0; i < ShapeList.Count; i++) 
-            {
-                ShapeList[i].RenderLighting(pointLights, cam, lightingShader);
-            }
+            //for (int i = 0; i < ShapeList.Count; i++) 
+            //{
+            //    ShapeList[i].RenderLighting(pointLights, camera, lightingShader);
+            //}
 
-            cubeRed.RenderColorLighting(pointLights, cam, lightingColorShader,new Vector3(1,0.5f,0.5f));
+            //cubeRed.RenderColorLighting(pointLights, camera, lightingColorShader,new Vector3(1,0.5f,0.5f));
+
+            cube.RenderBasic();
            
             SwapBuffers();
         }

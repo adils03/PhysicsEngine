@@ -5,7 +5,7 @@ namespace PhysicsEngine
     public class Cube : Shape
     {
       
-        public Cube(Vector3 position, Vector3 scale, ShapeShaderType type)
+        public Cube(Vector3 position, Vector3 scale)
         {
             base.Transform.Position = position;
             base.Transform.Scale = scale;
@@ -14,7 +14,7 @@ namespace PhysicsEngine
             LoadTexture();
             CreateBuffers();
         }
-        public Cube(Vector3 position,ShapeShaderType type)
+        public Cube(Vector3 position)
         {
             base.Transform.Position = position;
 
@@ -28,6 +28,16 @@ namespace PhysicsEngine
             LoadTexture();
             CreateBuffers();
         }
+
+        public Cube(ShapeShaderType type)
+        {
+            base.ShaderType = type;
+
+            AssignVerticesIndices();
+            LoadTexture();
+            CreateBuffers();
+        }
+
         public Cube(string texturePath1)
         {
             AssignVerticesIndices();

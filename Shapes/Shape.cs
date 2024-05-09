@@ -30,8 +30,7 @@ namespace PhysicsEngine
     {
         Lamp,
         ColorLight,
-        Textured
-            
+        Textured        
     }
 
     public class Shape
@@ -45,7 +44,15 @@ namespace PhysicsEngine
         public VertexPositionNormalTexture[] Vertices;
         protected Vector3[] Corners;
         protected Vector3[] Normals;
+        protected Vector3 Color = new Vector3(0,1,1);// eğer sadece renk olan bir şekilse
 
+
+        private  ShaderProgram lampShader;
+        private  ShaderProgram lightingShader;
+        private  ShaderProgram lightingColorShader;
+        PointLight[] pointLights;
+
+        Camera cam;
 
         protected int[] Indices;
 
@@ -56,6 +63,11 @@ namespace PhysicsEngine
 
         public Shape()
         {
+            lampShader = ShaderFactory.GetLampShader();
+            lightingShader = ShaderFactory.GetLightingShader();
+            lightingColorShader = ShaderFactory.GetLightingColorShader();
+            cam = CameraFactory.GetCam();
+            pointLights = PointLightFactory.GetPointLights();
         }
 
         ~Shape()
@@ -69,7 +81,6 @@ namespace PhysicsEngine
             indexBuffer?.Dispose();
             vertexBuffer?.Dispose();
         }
-
         protected void CreateBuffers()
         {
             vertexBuffer = new VertexBuffer(VertexPositionNormalTexture.VertexInfo, Vertices.Length, true);
@@ -80,20 +91,16 @@ namespace PhysicsEngine
 
             vertexArray = new VertexArray(vertexBuffer);
         }
-
         protected virtual void UpdateNormals()
         {
 
         }
-
         protected virtual void AssignVerticesIndices()
         {
         }
-
         protected virtual void LoadTexture(string diffuseMapPath = "Resources/container2.png", string specularMapPath = "Resources/container2_specular.png")
         {
         }
-
         protected void Render(PointLight[] pointLights, Camera cam, ShaderProgram shader, bool lighting = false)
         {
             shader.Use();
@@ -150,8 +157,6 @@ namespace PhysicsEngine
 
             GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
         }
-
-
         public void RenderColorLighting(PointLight[] pointLights, Camera cam, ShaderProgram shader, Vector3 color)
         {
             shader.Use();
@@ -200,6 +205,28 @@ namespace PhysicsEngine
         {
             Render(new PointLight[4], cam, shader, false);
         }
+
+        public void RenderBasic()
+        {
+            // Render based on ShaderType
+            switch (ShaderType)
+            {
+                case ShapeShaderType.Lamp:
+                    RenderObject(cam, lampShader);
+                    break;
+                case ShapeShaderType.ColorLight:
+                    RenderColorLighting(pointLights, cam, lightingColorShader,Color);
+                    break;
+                case ShapeShaderType.Textured:
+                    RenderLighting(pointLights, cam, lightingShader);
+                    break;
+                default:
+                    throw new ArgumentException("Invalid ShapeShaderType");
+            }
+        }
+
+
+
         public void Translate(Vector3 translateVector)
         {
             for (int i = 0; i < Vertices.Length; i++)
@@ -268,7 +295,6 @@ namespace PhysicsEngine
 
             Transform.Position = point;
         }
-
         public virtual Vector3[]? GetVertices()
         {
             return null;

@@ -6,37 +6,33 @@ using System.Threading.Tasks;
 
 namespace PhysicsEngine
 {
-    public class ShaderFactory
+    public sealed class ShaderFactory
     {
         private static ShaderProgram lampShader;
         private static ShaderProgram lightingShader;
         private static ShaderProgram lightingColorShader;
         private static bool initialized = false;
         private static object lockObject = new object();
-
         private ShaderFactory()
         {
             // Private constructor to prevent instantiation
+           
         }
-
         public static ShaderProgram GetLampShader()
         {
             Initialize();
             return lampShader;
         }
-
         public static ShaderProgram GetLightingShader()
         {
             Initialize();
             return lightingShader;
         }
-
         public static ShaderProgram GetLightingColorShader()
         {
             Initialize();
             return lightingColorShader;
         }
-
         private static void Initialize()
         {
             lock (lockObject)

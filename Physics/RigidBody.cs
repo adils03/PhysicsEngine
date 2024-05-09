@@ -71,7 +71,7 @@ namespace PhysicsEngine
 
 
         public RigidBody(Vector3 position, float density, float mass, float restitution, float area
-            , bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, Color4 color)
+            , bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, Vector3 color)
         {
             this.position = position;
             linearVelocity = Vector3.Zero;
@@ -104,7 +104,6 @@ namespace PhysicsEngine
                 invInertia = 0f;
             }
 
-
             if (shapeType == ShapeType.Sphere)
             {
                 this.shape = new Sphere(position, radius, 15, color);
@@ -115,7 +114,6 @@ namespace PhysicsEngine
                 //shape.Scale(new Vector3(width, height, depth));
             }
         }
-
         private float CalculateRotationalInertia()
         {
             if (shapeType is ShapeType.Sphere)
@@ -128,7 +126,6 @@ namespace PhysicsEngine
             }
             return 0;
         }
-
         public AABB GetAABB()
         {
             float minX = float.MaxValue;
@@ -167,7 +164,8 @@ namespace PhysicsEngine
         }
         public void Update(float time, Vector3 gravity, int iterations)
         {
-            //shape.RenderColorLighting();
+
+            shape.RenderBasic();//
 
             //f = ma
             if (isStatic)
@@ -195,7 +193,6 @@ namespace PhysicsEngine
             force = amount;
         }
 
-
         public void Move(Vector3 moveVector)
         {
             this.position += moveVector;
@@ -210,9 +207,8 @@ namespace PhysicsEngine
             this.position = target;
             shape.Teleport(target);
         }
-
-        public static void CreateCircleBody(float radius, Vector3 position, float density, bool isStatic, float restitution, Color4 color,
-                                        out RigidBody rigidBody)
+        public static void CreateCircleBody(float radius, Vector3 position, float density, bool isStatic, float restitution, Vector3 color,
+                                       out RigidBody rigidBody)
         {
 
             float area = radius * radius * MathF.PI;
@@ -220,7 +216,7 @@ namespace PhysicsEngine
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, radius, 0, 0, 0, ShapeType.Sphere, color);
         }
-        public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Color4 color
+        public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Vector3 color
                                         , out RigidBody rigidBody)
         {
 

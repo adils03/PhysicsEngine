@@ -10,7 +10,7 @@ namespace PhysicsEngine
     public class Game : GameWindow
     {
         CameraHelper cameraHelper;
-        protected Camera cam;
+        protected Camera camera;
         bool isLineMod = false;
 
 
@@ -21,6 +21,7 @@ namespace PhysicsEngine
             new Vector3( 5.0f,   10.0f,  5.0f),
             new Vector3( 5.0f,   10.0f,  -5.0f)
         };
+
         protected PointLight[] pointLights = new PointLight[4];
         Sphere[] lampObjects = new Sphere[4];
 
@@ -34,14 +35,12 @@ namespace PhysicsEngine
         {
             CenterWindow();
             cameraHelper = new CameraHelper(Size);
-            cam = cameraHelper.GetCamera();
+            camera = cameraHelper.GetCamera();
             CursorState = CursorState.Grabbed;
 
             objectShader = new ShaderProgram("Shaders/Shader.vert", "Shaders/Shader.frag");
             lightingShader = new ShaderProgram("Shaders/Shader.vert", "Shaders/Lighting.frag");
             lightingColorShader = new ShaderProgram("Shaders/Shader.vert", "Shaders/LightingColor.frag");
-
-
 
 
         }
@@ -55,7 +54,7 @@ namespace PhysicsEngine
 
             for (int i = 0; i < lampObjects.Length; i++)
             {
-                lampObjects[i] = new Sphere(_pointLightPositions[i], 0.2f, 15, Color4.Red,ShapeShaderType.Lamp);
+                lampObjects[i] = new Sphere(_pointLightPositions[i], 0.2f, 15, new Vector3(0,1,0));
             }
             // Aynı özelliklere sahip bir ışık oluşturma
             PointLight sharedLight = new PointLight()
@@ -84,11 +83,11 @@ namespace PhysicsEngine
             base.OnRenderFrame(e);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            for (int i = 0; i < pointLights.Length; i++)
-            {
+            //for (int i = 0; i < pointLights.Length; i++)
+            //{
 
-                lampObjects[i].RenderObject(cam, objectShader);
-            }
+            //    lampObjects[i].RenderObject(camera, objectShader);
+            //}
 
 
         }
