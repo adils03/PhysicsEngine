@@ -46,8 +46,8 @@ namespace PhysicsEngine
 
             }
             else
-            {
-                Console.WriteLine("Geçersiz endeks!");
+            {              
+                throw new Exception("Geçersiz endeks!");
             }
         }
         public void SetPointLightPosition(Vector3[] positions)
