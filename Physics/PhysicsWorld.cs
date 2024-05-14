@@ -48,9 +48,32 @@ namespace PhysicsEngine
         /// <returns></returns>
         public bool RemoveBody(RigidBody rigidBody)
         {
-            //rigidBody.shape.Destroy();
-            return rigidBodies.Remove(rigidBody);
+            // Remove associated shape if necessary
+            if (rigidBody.shape != null)
+            {
+                shapes.Remove(rigidBody.shape);
+                // rigidBody.shape.Destroy(); // Uncomment if you have a Destroy method for shapes
+            }
+
+            // Remove rigidbody from the list
+            bool removed = rigidBodies.Remove(rigidBody);
+
+            if (removed)
+            {
+                // Update contactPairs to remove pairs containing the removed body
+                contactPairs = contactPairs
+                    .Where(pair => rigidBodies[pair.Item1] != rigidBody && rigidBodies[pair.Item2] != rigidBody)
+                    .ToList();
+
+                // Update collisionInfos to remove info related to the removed body
+                collisionInfos = collisionInfos
+                    .Where(info => info.bodyA != rigidBody && info.bodyB != rigidBody)
+                    .ToList();
+            }
+
+            return removed;
         }
+
         /// <summary>
         /// Get body from rigidbody list.
         /// </summary>
@@ -120,6 +143,7 @@ namespace PhysicsEngine
         {
             for (int i = 0; i < rigidBodies.Count; i++)
             {
+
                 rigidBodies[i].Update(time, gravity, iterations);
             }
         }

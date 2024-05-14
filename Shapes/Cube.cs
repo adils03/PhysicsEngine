@@ -5,15 +5,6 @@ namespace PhysicsEngine
     public class Cube : Shape
     {
       
-        public Cube(Vector3 position, Vector3 scale)
-        {
-            base.Transform.Position = position;
-            base.Transform.Scale = scale;
-
-            AssignVerticesIndices();
-            LoadTexture();
-            CreateBuffers();
-        }
         public Cube(Vector3 position)
         {
             base.Transform.Position = position;
@@ -29,10 +20,10 @@ namespace PhysicsEngine
             CreateBuffers();
         }
 
-        public Cube(ShapeShaderType type)
+        public Cube(Vector3 position,ShapeShaderType type)
         {
             base.ShaderType = type;
-
+            base.Transform.Position = position;
             AssignVerticesIndices();
             LoadTexture();
             CreateBuffers();

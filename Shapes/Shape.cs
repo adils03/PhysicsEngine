@@ -233,11 +233,11 @@ namespace PhysicsEngine
 
         public void Translate(Vector3 translateVector)
         {
+            Transform.Position += translateVector;
             for (int i = 0; i < Vertices.Length; i++)
             {
                 Vertices[i].Position += translateVector;
             }
-            Transform.Position += translateVector;
 
             if (Corners != null)
             {
@@ -246,8 +246,6 @@ namespace PhysicsEngine
                     Corners[i] += translateVector;
                 }
             }
-
-
 
         }
         public void Rotate(Vector3 rotateVector)
@@ -298,6 +296,32 @@ namespace PhysicsEngine
                 }
 
             Transform.Position = point;
+        }
+        public void Scale(Vector3 scaleVector) // Scale must be applied before rotation.
+        {
+            // Scale the vertices
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                Vector3 fromCenter = Vertices[i].Position - Transform.Position;
+                Vertices[i].Position = Transform.Position + Vector3.Multiply(fromCenter, scaleVector);
+            }
+
+            // Scale the corners
+            for (int i = 0; i < Corners.Length; i++)
+            {
+                Vector3 fromCenter = Corners[i] - Transform.Position;
+                Corners[i] = Transform.Position + Vector3.Multiply(fromCenter, scaleVector);
+            }
+
+            Transform.Scale *= scaleVector;
+        }
+
+        public void DebugCorners()
+        {
+            for (int i = 0; i < Corners.Length; i++)
+            {
+                Console.WriteLine(Corners[i]);
+            }
         }
         public virtual Vector3[]? GetVertices()
         {

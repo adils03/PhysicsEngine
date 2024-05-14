@@ -15,54 +15,55 @@ namespace PhysicsEngine
         Sphere sphere;
         Cube cubeRed;
         PhysicsWorld world;
+        RigidBody ball5;
         public PlayGround(NativeWindowSettings settings) : base(settings)
         {
             ShapeList = new List<Shape>();
-            cube = new Cube(ShapeShaderType.Textured);
+            //cube = new Cube(ShapeShaderType.Textured);
         }
 
         protected override void OnLoad()
         {
             base.OnLoad();
-            //world = new PhysicsWorld(PhysicsWorld.WORLD_GRAVITY);
-            //cube = new Cube(); ShapeList.Add(cube);
-            ////cube2 = new Cube(); ShapeList.Add(cube2);
-            //sphere = new Sphere(Vector3.One, 1, 15, new Vector3(1)); ShapeList.Add(sphere);
-
-            //cubeRed = new Cube(new Vector3(10,10,10),new Vector3(3));
-
-
+            world = new PhysicsWorld(PhysicsWorld.WORLD_GRAVITY);
+            camera.Position = new Vector3(0, 10, 10);
+            cameraManager.SetCameraSpeed(5);
+            //RigidBody.CreateCubeBody(1, 10, 3, new Vector3(10, 10, 0), 1, true, 1, new Vector3(10, 10, 0), out RigidBody obstacle1);
+            //RigidBody.CreateCubeBody(1, 10, 3, new Vector3(0, 0, 0), 1, true, 1, new Vector3(10, 10, 0), out RigidBody obstacle2);
+            RigidBody.CreateCubeBody(1, 1, 1, new Vector3(0, -10, 5), 1, true, 1, new Vector3(10, 10, 0), out RigidBody obstacle3);
+            RigidBody.CreateCubeBody(1, 1, 1, new Vector3(0.3f,0, 5.3f), 1, false, 0.5f, new Vector3(10, 10, 0), out RigidBody obstacle4);
+            //RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, new Vector3(10, 10, 0), out RigidBody ball1);
+            //RigidBody.CreateSphereBody(1, new Vector3(7, 12, 1), 1, false, .7f, new Vector3(10, 10, 0), out RigidBody ball2);
+            //RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, new Vector3(10, 10, 0), out RigidBody ball3);
+            //RigidBody.CreateSphereBody(1, new Vector3(1, 14, 0), 1, false, .7f, new Vector3(10, 10, 0), out RigidBody ball4);
+            //RigidBody.CreateCubeBody(1, 1, 1, new Vector3(7, 16, 0), 1, false, .7f, new Vector3(10, 10, 0), out  ball5);
+            //RigidBody.CreateCubeBody(1, 1, 1, new Vector3(9, 16, 0), 1, false, .7f, new Vector3(10, 10, 0), out RigidBody ball6);
+            //obstacle1.Rotate(new Vector3(0, 0, 135));
+            //obstacle2.Rotate(new Vector3(0, 0, 45));
+            //world.AddBody(ball1);
+            //world.AddBody(ball2);
+            //world.AddBody(ball3);
+            //world.AddBody(ball4);
+            //world.AddBody(ball5);
+            //world.AddBody(ball6);
+            //world.AddBody(obstacle1);
+            ////world.AddBody(obstacle2);
+            world.AddBody(obstacle3);
+            world.AddBody(obstacle4);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
         {
             base.OnUpdateFrame(e);
-            //world.Update((float)e.Time,1);
             var _input = KeyboardState;
-
-            ShapeController.ControllerA(_input, cube, e);
-            ////ShapeController.ControllerB(_input,cube2,e);
-
-            ////çarpışma
-            //if (Collisions.IntersectCubeSphere(true,cube, sphere, 0, out Vector3 normal, out float depth))
-            //{
-            //    cube.Translate(-normal * depth / 2);
-            //    sphere.Translate(normal * depth / 2);
-            //}
+            //Console.WriteLine(ball5.linearVelocity + " linear velocity");
+            //ShapeController.ControllerA(_input, cube, e);
+            //Console.WriteLine(cube1.linearVelocity);
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
-
-            //for (int i = 0; i < ShapeList.Count; i++) 
-            //{
-            //    ShapeList[i].RenderLighting(pointLights, camera, lightingShader);
-            //}
-
-            //cubeRed.RenderColorLighting(pointLights, camera, lightingColorShader,new Vector3(1,0.5f,0.5f));
-
-            cube.RenderBasic();
-           
+            world.Update((float)e.Time, 1);
             SwapBuffers();
         }
       

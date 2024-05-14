@@ -9,7 +9,7 @@ namespace PhysicsEngine
 {
     public class Game : GameWindow
     {
-        CameraManager cameraManager;
+        protected CameraManager cameraManager;
         protected Camera camera;
         bool isLineMod = false;
 

@@ -17,6 +17,8 @@ namespace PhysicsEngine
         private bool _firstMove = true;
         private Vector2 _lastPos;
 
+        private float cameraSpeed = 1f;
+
 
         public static CameraManager GetInstance()
         {
@@ -37,7 +39,6 @@ namespace PhysicsEngine
         }      
         public void CamControl(KeyboardState input, MouseState mouse, FrameEventArgs e)
         {
-            const float cameraSpeed = 1.5f;
             const float sensitivity = 0.17f;
 
             if (input.IsKeyDown(Keys.W))
@@ -89,6 +90,11 @@ namespace PhysicsEngine
         public Camera GetCamera()
         {
             return _camera;
+        }
+
+        public void SetCameraSpeed(float speed)
+        {
+            cameraSpeed = speed;
         }
     }
 }

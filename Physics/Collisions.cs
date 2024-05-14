@@ -107,6 +107,7 @@ namespace PhysicsEngine
             {
                 direction = cube.Transform.Position - sphere.Transform.Position;
             }
+            //normal = direction;
             if (Vector3.Dot(direction, normal) < 0)
             {
                 normal = -normal;
