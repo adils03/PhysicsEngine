@@ -1,19 +1,40 @@
 ﻿using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.GraphicsLibraryFramework;
+using System.Drawing;
 
 
 namespace PhysicsEngine
 {
-    public class CameraHelper
+    public class CameraManager
     {
         private readonly Camera _camera;
+
+        private static CameraManager instance;
+
+        private static readonly object lockObject = new object();
+
         private bool _firstMove = true;
         private Vector2 _lastPos;
-        public CameraHelper(Vector2i Size)
+
+
+        public static CameraManager GetInstance()
         {
-            _camera = CameraFactory.GetCam();
+            lock (lockObject)
+            {
+                // Eğer örnek henüz oluşturulmadıysa oluşturulur
+                if (instance == null)
+                {
+                    instance = new CameraManager();
+                }
+                return instance;
+            }
         }
+        private CameraManager()
+        {
+             Vector2i Size = new Vector2i(1280, 768);
+            _camera = new Camera(Vector3.UnitZ * 3, Size.X / (float)Size.Y);
+        }      
         public void CamControl(KeyboardState input, MouseState mouse, FrameEventArgs e)
         {
             const float cameraSpeed = 1.5f;
@@ -69,6 +90,5 @@ namespace PhysicsEngine
         {
             return _camera;
         }
-
     }
 }

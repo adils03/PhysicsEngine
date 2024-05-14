@@ -6,14 +6,14 @@ using System.Threading.Tasks;
 
 namespace PhysicsEngine
 {
-    public sealed class ShaderFactory
+    public sealed class ShaderManager
     {
         private static ShaderProgram lampShader;
         private static ShaderProgram lightingShader;
         private static ShaderProgram lightingColorShader;
         private static bool initialized = false;
         private static object lockObject = new object();
-        private ShaderFactory()
+        private ShaderManager()
         {
             // Private constructor to prevent instantiation
            

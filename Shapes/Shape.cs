@@ -63,11 +63,7 @@ namespace PhysicsEngine
 
         public Shape()
         {
-            lampShader = ShaderFactory.GetLampShader();
-            lightingShader = ShaderFactory.GetLightingShader();
-            lightingColorShader = ShaderFactory.GetLightingColorShader();
-            cam = CameraFactory.GetCam();
-            pointLights = PointLightFactory.GetPointLights();
+        
         }
 
         ~Shape()
@@ -208,6 +204,14 @@ namespace PhysicsEngine
 
         public void RenderBasic()
         {
+            lampShader = ShaderManager.GetLampShader();
+            lightingShader = ShaderManager.GetLightingShader();
+            lightingColorShader = ShaderManager.GetLightingColorShader();
+            cam = CameraManager.GetInstance().GetCamera();
+            pointLights = PointLightManager.GetInstance().GetPointLights();
+
+
+
             // Render based on ShaderType
             switch (ShaderType)
             {

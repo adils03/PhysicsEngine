@@ -40,9 +40,9 @@ namespace PhysicsEngine
             //world.Update((float)e.Time,1);
             var _input = KeyboardState;
 
-            //ShapeController.ControllerA(_input,cube,e);
+            ShapeController.ControllerA(_input, cube, e);
             ////ShapeController.ControllerB(_input,cube2,e);
-        
+
             ////çarpışma
             //if (Collisions.IntersectCubeSphere(true,cube, sphere, 0, out Vector3 normal, out float depth))
             //{
