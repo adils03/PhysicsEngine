@@ -62,6 +62,18 @@ namespace PhysicsEngine
             contact4 = default(Vector3);
             contactCount = 0;
         }
+
+
+
+
+
+
+
+
+
+
+
+
             public static bool IntersectCubeSphere(bool reverse, Cube cube, Sphere sphere, float tolerance,
             out Vector3 normal, out float depth)
         {

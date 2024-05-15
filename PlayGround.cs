@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -16,6 +17,7 @@ namespace PhysicsEngine
         Cube cubeRed;
         PhysicsWorld world;
         RigidBody ball5;
+        PointCloud pointCloud;
         public PlayGround(NativeWindowSettings settings) : base(settings)
         {
             ShapeList = new List<Shape>();
@@ -27,18 +29,19 @@ namespace PhysicsEngine
             base.OnLoad();
             world = new PhysicsWorld(PhysicsWorld.WORLD_GRAVITY,new Vector3(100,100,100));
           
-            cameraManager.SetCameraSpeed(5);
-            RigidBody.CreateCubeBody(1, 10, 3, new Vector3(10, 10, 0), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle1);
-            RigidBody.CreateCubeBody(1, 10, 3, new Vector3(0, 0, 0), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle2);
+            cameraManager.SetCameraSpeed(10);
+            GL.PointSize(30);
+            RigidBody.CreateCubeBody(3, 10, 3, new Vector3(10, 10, 0), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle1);
+            RigidBody.CreateCubeBody(3, 1, 3, new Vector3(0, 0, 0), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle2);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(0, -10, 5), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle3);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(10f, 0, 10f), 1, false, 0.5f, Color4.AliceBlue, out RigidBody obstacle4);
             RigidBody.CreateCubeBody(20, 1, 20, new Vector3(0, -5f, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle5);
             RigidBody.CreateCubeBody(100, 1, 5, new Vector3(0, -7.3f, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle6);
             obstacle6.Rotate(new Vector3(90, 0, 0));
-            RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, Color4.AliceBlue, out RigidBody ball1);
-            RigidBody.CreateSphereBody(1, new Vector3(7, 12, 1), 1, false, .7f, Color4.AliceBlue, out RigidBody ball2);
-            RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, Color4.AliceBlue, out RigidBody ball3);
-            RigidBody.CreateSphereBody(1, new Vector3(1, 14, 0), 1, false, .7f, Color4.AliceBlue, out RigidBody ball4);
+            RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, Color4.Red, out RigidBody ball1);
+            RigidBody.CreateSphereBody(1, new Vector3(7, 12, 1), 1, false, .7f, Color4.Green, out RigidBody ball2);
+            RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, Color4.Yellow, out RigidBody ball3);
+            RigidBody.CreateSphereBody(1, new Vector3(1, 14, 0), 1, false, .7f, Color4.Blue, out RigidBody ball4);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(7, 16, 0), 1, false, .7f, Color4.AliceBlue, out ball5);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(9, 16, 0), 1, false, .7f, Color4.AliceBlue, out RigidBody ball6);
             obstacle1.Rotate(new Vector3(0, 0, 135));
@@ -51,10 +54,11 @@ namespace PhysicsEngine
             world.AddBody(ball6);
             world.AddBody(obstacle1);
             world.AddBody(obstacle2);
-            world.AddBody(obstacle3);
-            world.AddBody(obstacle4);
+            //world.AddBody(obstacle3);
+            //world.AddBody(obstacle4);
             world.AddBody(obstacle5);
             world.AddBody(obstacle6);
+            pointCloud = new PointCloud(Color4.Red, Vector3.Zero);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -69,6 +73,7 @@ namespace PhysicsEngine
         {
             base.OnRenderFrame(e);
             world.Update((float)e.Time, 1);
+            pointCloud.RenderBasic();
             SwapBuffers();
         }
       

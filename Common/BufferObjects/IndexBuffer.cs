@@ -48,11 +48,11 @@ namespace PhysicsEngine
                 return;
             }
 
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-            GL.DeleteBuffer(this.IndexBufferHandle);
+            //GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
+            //GL.DeleteBuffer(this.IndexBufferHandle);
 
-            this.disposed = true;
-            GC.SuppressFinalize(this);
+            //this.disposed = true;
+            //GC.SuppressFinalize(this);
         }
         public void SetData(int[] data, int count)
         {

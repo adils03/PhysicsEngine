@@ -52,11 +52,11 @@ namespace PhysicsEngine
                 return;
             }
 
-            GL.BindVertexArray(0);
-            GL.DeleteVertexArray(this.VertexArrayHandle);
+            //GL.BindVertexArray(0);
+            //GL.DeleteVertexArray(this.VertexArrayHandle);
 
-            this.disposed = true;
-            GC.SuppressFinalize(this);
+            //this.disposed = true;
+            //GC.SuppressFinalize(this);
         }
     }
 }

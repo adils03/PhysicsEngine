@@ -52,11 +52,11 @@ namespace PhysicsEngine
             {
                 return;
             }
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.DeleteBuffer(this.VertexBufferHandle);
+            //GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            //GL.DeleteBuffer(this.VertexBufferHandle);
 
-            this.disposed = true;
-            GC.SuppressFinalize(this);
+            //this.disposed = true;
+            ////GC.SuppressFinalize(this);
         }
 
         public void SetData<T>(T[] data, int count) where T : struct

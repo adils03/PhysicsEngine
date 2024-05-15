@@ -28,6 +28,7 @@ namespace PhysicsEngine
         protected ShaderProgram lightingShader;
         protected ShaderProgram lightingColorShader;
 
+        private PolygonMode renderType = PolygonMode.Fill;
         public Game(NativeWindowSettings settings) : base(GameWindowSettings.Default, settings)
         {
             CenterWindow();
@@ -107,6 +108,34 @@ namespace PhysicsEngine
 
             GL.Viewport(0, 0, Size.X, Size.Y);
             cameraManager.GetCamera().AspectRatio = Size.X / (float)Size.Y;
+        }
+        protected override void OnMouseDown(MouseButtonEventArgs e)
+        {
+            base.OnMouseDown(e);
+            if (e.Button == MouseButton.Right)
+            {
+                ToggleRenderType();
+            }
+        }
+        private void ToggleRenderType()
+        {
+            switch (renderType)
+            {
+                case PolygonMode.Fill:
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                    renderType = PolygonMode.Line;
+                    break;
+                case PolygonMode.Line:
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Point);
+                    renderType = PolygonMode.Point;
+                    break;
+                case PolygonMode.Point:
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    renderType = PolygonMode.Fill;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
     }
 }

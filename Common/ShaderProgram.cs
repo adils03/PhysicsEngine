@@ -80,14 +80,14 @@ namespace PhysicsEngine
                 return;
             }
 
-            GL.DeleteShader(this.VertexShaderHandle);
-            GL.DeleteShader(this.PixelShaderHandle);
+            //GL.DeleteShader(this.VertexShaderHandle);
+            //GL.DeleteShader(this.PixelShaderHandle);
 
-            GL.UseProgram(0);
-            GL.DeleteProgram(this.ShaderProgramHandle);
+            //GL.UseProgram(0);
+            //GL.DeleteProgram(this.ShaderProgramHandle);
 
-            this.disposed = true;
-            GC.SuppressFinalize(this);
+            //this.disposed = true;
+            //GC.SuppressFinalize(this);
         }
 
         public void Use()
