@@ -47,7 +47,7 @@ namespace PhysicsEngine
 
             for (int i = 0; i < pointLights.Length; i++)
             {
-                lampObjects[i] = new Sphere(pointLights[i].position, 0.2f, 15, new Vector3(0,1,0));
+                lampObjects[i] = new Sphere(pointLights[i].position, 0.2f, 15,Color4.White);
             }
        
         }

@@ -34,6 +34,7 @@ uniform Light light;
 uniform Material material;
 uniform vec3 viewPos;
 uniform vec3 objectColor; // Yeni uniform renk değeri
+uniform vec4 objectColor4; // Yeni uniform renk değeri
 
 out vec4 FragColor;
 
@@ -49,8 +50,8 @@ vec3 CalculateLighting(Light light, vec3 fragPos, vec3 normal, vec3 viewDir)
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
     vec3 ambient = light.ambient * objectColor * attenuation; // Texture yerine uniform renk
-    vec3 diffuse = light.diffuse * diff * objectColor * attenuation; // Texture yerine uniform renk
-    vec3 specular = light.specular * spec * objectColor * attenuation; // Texture yerine uniform renk
+    vec3 diffuse = light.diffuse * diff * objectColor4.rgb * attenuation; // Texture yerine uniform renk
+    vec3 specular = light.specular * spec * objectColor4.rgb * attenuation; // Texture yerine uniform renk
     return (ambient + diffuse + specular);
 }
 
@@ -60,9 +61,9 @@ vec3 CalcDirLight(DirLight light, vec3 normal, vec3 viewDir)
     float diff = max(dot(normal, lightDir), 0.0);
     vec3 reflectDir = reflect(-lightDir, normal);
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 ambient = light.ambient * objectColor; // Texture yerine uniform renk
-    vec3 diffuse = light.diffuse * diff * objectColor; // Texture yerine uniform renk
-    vec3 specular = light.specular * spec * objectColor; // Texture yerine uniform renk
+    vec3 ambient = light.ambient *  objectColor4.rgb; // Texture yerine uniform renk
+    vec3 diffuse = light.diffuse * diff *  objectColor4.rgb; // Texture yerine uniform renk
+    vec3 specular = light.specular * spec *  objectColor4.rgb; // Texture yerine uniform renk
     return (ambient + diffuse + specular);
 }
 

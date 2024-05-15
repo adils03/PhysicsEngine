@@ -79,7 +79,7 @@ namespace PhysicsEngine
 
 
         public RigidBody(Vector3 position, float density, float mass, float restitution, float area
-            , bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, Vector3 color)
+            , bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, Color4 color)
         {
             this.position = position;
             linearVelocity = Vector3.Zero;
@@ -114,7 +114,8 @@ namespace PhysicsEngine
 
             if (shapeType == ShapeType.Sphere)
             {
-                this.shape = new Sphere(position, radius, 15, color);
+                //this.shape = new Sphere(position, radius, 15, color);
+                this.shape = new Sphere(ShapeShaderType.ColorLight,position,color,radius);
             }
             if (shapeType == ShapeType.Cube)
             {
@@ -217,7 +218,7 @@ namespace PhysicsEngine
             this.position = target;
             shape.Teleport(target);
         }
-        public static void CreateSphereBody(float radius, Vector3 position, float density, bool isStatic, float restitution, Vector3 color,
+        public static void CreateSphereBody(float radius, Vector3 position, float density, bool isStatic, float restitution, Color4 color,
                                        out RigidBody rigidBody)
         {
 
@@ -226,7 +227,7 @@ namespace PhysicsEngine
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, radius, 0, 0, 0, ShapeType.Sphere, color);
         }
-        public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Vector3 color
+        public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Color4 color
                                         , out RigidBody rigidBody)
         {
 

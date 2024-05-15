@@ -36,6 +36,8 @@ namespace PhysicsEngine
         {
              Vector2i Size = new Vector2i(1280, 768);
             _camera = new Camera(Vector3.UnitZ * 3, Size.X / (float)Size.Y);
+            _camera.Position = new Vector3i(0, 10,15);
+            
         }      
         public void CamControl(KeyboardState input, MouseState mouse, FrameEventArgs e)
         {

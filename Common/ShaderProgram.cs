@@ -160,6 +160,21 @@ namespace PhysicsEngine
             GL.UseProgram(ShaderProgramHandle);
             GL.Uniform3(uniform.Location, data);
         }
+        public void SetUniform(string name, Color4 data)
+        {
+            if (!this.GetShaderUniform(name, out ShaderUniform uniform))
+            {
+                throw new ArgumentException("Name was not found.");
+            }
+
+            //if (uniform.Type != ActiveUniformType.FloatVec3)
+            //{
+            //    throw new ArgumentException("Uniform type is not FloatVec3.");
+            //}
+
+            GL.UseProgram(ShaderProgramHandle);
+            GL.Uniform4(uniform.Location, data);
+        }
         public void SetUniform(string name, float v1, float v2)
         {
             if (!this.GetShaderUniform(name, out ShaderUniform uniform))

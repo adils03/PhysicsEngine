@@ -44,7 +44,7 @@ namespace PhysicsEngine
         public VertexPositionNormalTexture[] Vertices;
         protected Vector3[] Corners;
         protected Vector3[] Normals;
-        protected Vector3 Color = new Vector3(0,1,1);// eğer sadece renk olan bir şekilse
+        protected Color4 Color = Color4.Bisque;// eğer sadece renk olan bir şekilse
 
 
         private  ShaderProgram lampShader;
@@ -153,7 +153,7 @@ namespace PhysicsEngine
 
             GL.DrawElements(PrimitiveType.Triangles, Indices.Length, DrawElementsType.UnsignedInt, 0);
         }
-        public void RenderColorLighting(PointLight[] pointLights, Camera cam, ShaderProgram shader, Vector3 color)
+        public void RenderColorLighting(PointLight[] pointLights, Camera cam, ShaderProgram shader)
         {
             shader.Use();
 
@@ -174,7 +174,8 @@ namespace PhysicsEngine
             shader.SetUniform("material.shininess", 32.0f);
 
             shader.SetUniform("viewPos", cam.Position);
-            shader.SetUniform("objectColor", color);
+        
+            shader.SetUniform("objectColor4", Color);// color4
 
             // pointLights
             for (int i = 0; i < pointLights.Length; i++)
@@ -219,7 +220,7 @@ namespace PhysicsEngine
                     RenderObject(cam, lampShader);
                     break;
                 case ShapeShaderType.ColorLight:
-                    RenderColorLighting(pointLights, cam, lightingColorShader,Color);
+                    RenderColorLighting(pointLights, cam, lightingColorShader);
                     break;
                 case ShapeShaderType.Textured:
                     RenderLighting(pointLights, cam, lightingShader);
