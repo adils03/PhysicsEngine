@@ -19,7 +19,7 @@ namespace PhysicsEngine
 
 
 
-            using PlayGround game = new(settings);
+            using PlayGround2 game = new(settings);
             game.Run();
 
         }

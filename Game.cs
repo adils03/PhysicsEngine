@@ -16,6 +16,14 @@ namespace PhysicsEngine
         Sphere[] lampObjects = new Sphere[4];
         PointLight[] pointLights;
 
+        Vector3[] _pointLightPositions =
+        {
+                    new Vector3( -5.0f,  10.0f,  -5.0f),
+                    new Vector3( -5.0f,  10.0f,  5.0f),
+                    new Vector3( 5.0f,   10.0f,  5.0f),
+                    new Vector3( 5.0f,   10.0f,  -5.0f)
+        };
+
         protected ShaderProgram objectShader;
         protected ShaderProgram lightingShader;
         protected ShaderProgram lightingColorShader;
@@ -37,19 +45,19 @@ namespace PhysicsEngine
         protected override void OnLoad()
         {
             base.OnLoad();
-            GL.ClearColor(0.1f,0.2f,0.3f,1.0f);
+            GL.ClearColor(0.1f, 0.2f, 0.3f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             IsVisible = true;
 
-            PointLightManager.GetInstance().SetPointLightPosition(0,new Vector3(0,5,0));// 0. indexteki pointlighte değer verdik not render işlemlerinden önce yapılmalı
+            PointLightManager.GetInstance().SetPointLightPosition(this._pointLightPositions);
 
             pointLights = PointLightManager.GetInstance().GetPointLights();
 
             for (int i = 0; i < pointLights.Length; i++)
             {
-                lampObjects[i] = new Sphere(pointLights[i].position, 0.2f, 15,Color4.White);
+                lampObjects[i] = new Sphere(pointLights[i].position, 0.2f, 15, Color4.White);
             }
-       
+
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
