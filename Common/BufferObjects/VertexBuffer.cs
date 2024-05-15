@@ -52,7 +52,6 @@ namespace PhysicsEngine
             {
                 return;
             }
-
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
             GL.DeleteBuffer(this.VertexBufferHandle);
 

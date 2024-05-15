@@ -24,6 +24,13 @@ namespace PhysicsEngine
             min = new Vector3(minX, minY, minZ);
             max = new Vector3(maxX, maxY, maxZ);
         }
+        public Vector3 HalfSize
+        {
+            get
+            {
+                return (max - min) * 0.5f;
+            }
+        }
     }
 
     public enum ShapeType

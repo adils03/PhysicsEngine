@@ -6,6 +6,7 @@ namespace PhysicsEngine
 {
     public class PhysicsWorld
     {
+        // Sabitler
         public static readonly float WORLD_GRAVITY = 9.81f;
         public static readonly float MOON_GRAVITY = 1.62f;
         public static readonly float MARS_GRAVITY = 3.71f;
@@ -14,7 +15,6 @@ namespace PhysicsEngine
         public static readonly float MAX_DENSITY = 22.59f;
         public static readonly float MIN_MASS = 0.0001f;
         public static readonly float MAX_MASS = 100000f;
-
         public const int MIN_ITERATIONS = 1;
         public const int MAX_ITERATIONS = 128;
 
@@ -24,48 +24,41 @@ namespace PhysicsEngine
         private List<(int, int)> contactPairs;
 
         private Vector3 gravity;
+        private Octree octree;
 
-        public PhysicsWorld(float gravityAmount)
+        public PhysicsWorld(float gravityAmount, Vector3 worldSize)
         {
             gravity = new Vector3(0, -gravityAmount, 0);
             shapes = new List<Shape>();
             rigidBodies = new List<RigidBody>();
             collisionInfos = new List<CollisionInfo>();
             contactPairs = new List<(int, int)>();
+            octree = new Octree(worldSize, 1); // Octree'yi başlatırken dünya boyutunu ve minimum düğüm boyutunu belirtin.
         }
-        /// <summary>
-        /// Add rigidbody to rigibody list.
-        /// </summary>
-        /// <param name="rigidBody"></param>
+
         public void AddBody(RigidBody rigidBody)
         {
             rigidBodies.Add(rigidBody);
+            octree.Insert(rigidBody); // RigidBody nesnesini Octree'ye ekleyin.
         }
-        /// <summary>
-        /// Remove rigidbody from rigidbody list.
-        /// </summary>
-        /// <param name="rigidBody"></param>
-        /// <returns></returns>
+
         public bool RemoveBody(RigidBody rigidBody)
         {
-            // Remove associated shape if necessary
             if (rigidBody.shape != null)
             {
                 shapes.Remove(rigidBody.shape);
-                // rigidBody.shape.Destroy(); // Uncomment if you have a Destroy method for shapes
             }
 
-            // Remove rigidbody from the list
             bool removed = rigidBodies.Remove(rigidBody);
 
             if (removed)
             {
-                // Update contactPairs to remove pairs containing the removed body
+                octree.Remove(rigidBody); // RigidBody nesnesini Octree'den çıkarın.
+
                 contactPairs = contactPairs
                     .Where(pair => rigidBodies[pair.Item1] != rigidBody && rigidBodies[pair.Item2] != rigidBody)
                     .ToList();
 
-                // Update collisionInfos to remove info related to the removed body
                 collisionInfos = collisionInfos
                     .Where(info => info.bodyA != rigidBody && info.bodyB != rigidBody)
                     .ToList();
@@ -74,12 +67,6 @@ namespace PhysicsEngine
             return removed;
         }
 
-        /// <summary>
-        /// Get body from rigidbody list.
-        /// </summary>
-        /// <param name="index"></param>
-        /// <param name="rigidBody"></param>
-        /// <returns></returns>
         public bool GetBody(int index, out RigidBody rigidBody)
         {
             rigidBody = null;
@@ -91,11 +78,6 @@ namespace PhysicsEngine
             return true;
         }
 
-
-        /// <summary>
-        /// Updates rigidbodies and apply forces.
-        /// </summary>
-        /// <param name="time"></param>
         public void Update(float time, int iterations)
         {
             iterations = MathHelper.Clamp(iterations, MIN_ITERATIONS, MAX_ITERATIONS);
@@ -103,56 +85,54 @@ namespace PhysicsEngine
             for (int iteration = 0; iteration < iterations; iteration++)
             {
                 collisionInfos.Clear();
-                //Movement
+                contactPairs.Clear();
+
                 StepBodies(time, iterations);
-
-
-                //Collision
                 BroadPhase();
                 NarrowPhase();
-
             }
         }
 
         private void BroadPhase()
         {
-            for (int i = 0; i < rigidBodies.Count - 1; i++)
+            octree.Clear();
+            foreach (var body in rigidBodies)
             {
-                RigidBody a = rigidBodies[i];
-                AABB a_aabb = a.GetAABB();
-                for (int j = i + 1; j < rigidBodies.Count; j++)
+                octree.Insert(body);
+            }
+
+            foreach (var body in rigidBodies)
+            {
+                List<RigidBody> potentialColliders = octree.Retrieve(body);
+                foreach (var other in potentialColliders)
                 {
-                    RigidBody b = rigidBodies[j];
-                    AABB b_aabb = b.GetAABB();
-                    if (a.isStatic && b.isStatic)
+                    if (body == other || (body.isStatic && other.isStatic))
                     {
                         continue;
                     }
 
-                    if (!Collisions.AABBCheck(a_aabb, b_aabb))
+                    if (!Collisions.AABBCheck(body.GetAABB(), other.GetAABB()))
                     {
                         continue;
                     }
 
-                    contactPairs.Add((i, j));
+                    contactPairs.Add((rigidBodies.IndexOf(body), rigidBodies.IndexOf(other)));
                 }
             }
         }
 
         private void StepBodies(float time, int iterations)
         {
-            for (int i = 0; i < rigidBodies.Count; i++)
+            foreach (var body in rigidBodies)
             {
-
-                rigidBodies[i].Update(time, gravity, iterations);
+                body.Update(time, gravity, iterations);
             }
         }
 
         private void NarrowPhase()
         {
-            for (int i = 0; i < contactPairs.Count; i++)
+            foreach (var pair in contactPairs)
             {
-                (int, int) pair = contactPairs[i];
                 RigidBody rigidBodyA = rigidBodies[pair.Item1];
                 RigidBody rigidBodyB = rigidBodies[pair.Item2];
 
@@ -179,19 +159,11 @@ namespace PhysicsEngine
             }
         }
 
-        /// <summary>
-        /// Resolves collisions with mass and restitution. 
-        /// </summary>
-        /// <param name="bodyA"></param>
-        /// <param name="bodyB"></param>
-        /// <param name="normal"></param>
-        /// <param name="depth"></param>
         private void ResolveCollision(in CollisionInfo collisionInfo)
         {
             RigidBody bodyA = collisionInfo.bodyA;
             RigidBody bodyB = collisionInfo.bodyB;
             Vector3 normal = collisionInfo.normal;
-            float depth = collisionInfo.depth;
 
             Vector3 relativeVelocity = bodyB.LinearVelocity - bodyA.LinearVelocity;
 
@@ -201,13 +173,23 @@ namespace PhysicsEngine
             }
 
             float e = MathF.Min(bodyA.restitution, bodyB.restitution);
+
+            float dampingFactor = 0.8f;
+            e *= dampingFactor;
+
             float j = -(1 + e) * Vector3.Dot(relativeVelocity, normal);
             j /= bodyA.invMass + bodyB.invMass;
 
             Vector3 impulse = j * normal;
 
-            bodyA.LinearVelocity -= impulse * bodyA.invMass;
-            bodyB.LinearVelocity += impulse * bodyB.invMass;
+            if (!bodyA.isStatic)
+            {
+                bodyA.LinearVelocity -= impulse * bodyA.invMass;
+            }
+            if (!bodyB.isStatic)
+            {
+                bodyB.LinearVelocity += impulse * bodyB.invMass;
+            }
         }
 
         private void ResolveCollisionRotation(in CollisionInfo collisionInfo)
@@ -248,13 +230,11 @@ namespace PhysicsEngine
                     continue;
                 }
 
-
                 float j = -(1 + e) * vAB;
                 float firstPart = Vector3.Dot(normal, normal) * (1 / rigidBodyA.mass + 1 / rigidBodyB.mass);
                 Vector3 IrAPxNxrAP = Vector3.Cross(rigidBodyA.invInertia * Vector3.Cross(rAP, normal), rAP);
                 Vector3 IrBPxNxrBP = Vector3.Cross(rigidBodyB.invInertia * Vector3.Cross(rBP, normal), rBP);
                 float secondPart = Vector3.Dot(IrAPxNxrAP + IrBPxNxrBP, normal);
-
 
                 j /= firstPart + secondPart;
                 j /= contactCount;
@@ -275,11 +255,7 @@ namespace PhysicsEngine
                 rigidBodyB.LinearVelocity += impulse * rigidBodyB.invMass;
                 rigidBodyB.angularVelocity += Vector3.Cross(rB, impulse) * rigidBodyB.invInertia;
             }
-
         }
-
-
-
 
     }
     public readonly struct CollisionInfo
@@ -307,8 +283,6 @@ namespace PhysicsEngine
             this.contact4 = contact4;
             this.contactCount = contactCount;
         }
-
-
 
     }
 }

@@ -112,7 +112,7 @@ namespace PhysicsEngine
             {
                 normal = -normal;
             }
-            depth /= normal.Length;
+            //depth /= normal.Length;
             normal.Normalize();
             return true;
         }
