@@ -58,7 +58,8 @@ namespace PhysicsEngine
             //world.AddBody(obstacle4);
             world.AddBody(obstacle5);
             world.AddBody(obstacle6);
-            pointCloud = new PointCloud(Color4.Red, Vector3.Zero);
+
+            pointCloud = new PointCloud(Color4.Red,ShapeShaderType.ColorLight, Vector3.Zero);
         }
 
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -73,7 +74,9 @@ namespace PhysicsEngine
         {
             base.OnRenderFrame(e);
             world.Update((float)e.Time, 1);
+           
             pointCloud.RenderBasic();
+           
             SwapBuffers();
         }
       

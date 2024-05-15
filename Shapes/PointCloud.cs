@@ -11,8 +11,9 @@ namespace PhysicsEngine
     {
         private Color4 color;
         private Vector3[] _vertices;
-        public PointCloud(Color4 color, params Vector3[] vertices)
+        public PointCloud(Color4 color, ShapeShaderType type, params Vector3[] vertices)
         {
+            base.ShaderType = type;
             this.color = color;
             _vertices = vertices;
             AssignVerticesIndices();
