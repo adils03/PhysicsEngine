@@ -7,7 +7,14 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 namespace PhysicsEngine
 {
     public class PlayGround : Game
-    {   
+    {
+        Vector3[] _pointLightPositions =
+        {
+                    new Vector3( -5.0f,  10.0f,  -5.0f),
+                    new Vector3( -5.0f,  10.0f,  5.0f),
+                    new Vector3( 5.0f,   10.0f,  5.0f),
+                    new Vector3( 5.0f,   10.0f,  -5.0f)
+        };
 
         List<Shape> ShapeList;
 
@@ -22,6 +29,7 @@ namespace PhysicsEngine
         {
             ShapeList = new List<Shape>();
             //cube = new Cube(ShapeShaderType.Textured);
+            SetLamps();
         }
 
         protected override void OnLoad()
@@ -76,8 +84,28 @@ namespace PhysicsEngine
             world.Update((float)e.Time, 1);
            
             pointCloud.RenderBasic();
-           
+
+            RenderLamps();
             SwapBuffers();
+        }
+
+        public void SetLamps()
+        {
+            PointLightManager.GetInstance().SetPointLightPosition(this._pointLightPositions);
+            pointLights = PointLightManager.GetInstance().GetPointLights();
+
+            for (int i = 0; i < pointLights.Length; i++)
+            {
+                lampObjects[i] = new Sphere(pointLights[i].position, 0.2f, 15, Color4.White);
+            }
+        }
+        public void RenderLamps()
+        {
+            for (int i = 0; i < pointLights.Length; i++)
+            {
+
+                lampObjects[i].RenderObject(camera, objectShader);
+            }
         }
       
 

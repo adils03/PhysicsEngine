@@ -165,7 +165,7 @@ namespace PhysicsEngine
             RigidBody bodyB = collisionInfo.bodyB;
             Vector3 normal = collisionInfo.normal;
 
-            Vector3 relativeVelocity = bodyB.LinearVelocity - bodyA.LinearVelocity;
+            Vector3 relativeVelocity = bodyB.linearVelocity - bodyA.linearVelocity;
 
             if (Vector3.Dot(relativeVelocity, normal) > 0)
             {
@@ -184,11 +184,11 @@ namespace PhysicsEngine
 
             if (!bodyA.isStatic)
             {
-                bodyA.LinearVelocity -= impulse * bodyA.invMass;
+                bodyA.linearVelocity -= impulse * bodyA.invMass;
             }
             if (!bodyB.isStatic)
             {
-                bodyB.LinearVelocity += impulse * bodyB.invMass;
+                bodyB.linearVelocity += impulse * bodyB.invMass;
             }
         }
 
@@ -221,7 +221,7 @@ namespace PhysicsEngine
                 Vector3 angularVelocityA = rAP * rigidBodyA.angularVelocity;
                 Vector3 angularVelocityB = rBP * rigidBodyB.angularVelocity;
 
-                Vector3 relativeVelocity = (rigidBodyB.LinearVelocity + angularVelocityB) - (rigidBodyA.LinearVelocity + angularVelocityA);
+                Vector3 relativeVelocity = (rigidBodyB.linearVelocity + angularVelocityB) - (rigidBodyA.linearVelocity + angularVelocityA);
 
                 float vAB = Vector3.Dot(relativeVelocity, normal);
 
@@ -250,9 +250,9 @@ namespace PhysicsEngine
                 Vector3 rA = rAPList[i];
                 Vector3 rB = rBPList[i];
 
-                rigidBodyA.LinearVelocity += -impulse * rigidBodyA.invMass;
+                rigidBodyA.linearVelocity += -impulse * rigidBodyA.invMass;
                 rigidBodyA.angularVelocity += -Vector3.Cross(rA, impulse) * rigidBodyA.invInertia;
-                rigidBodyB.LinearVelocity += impulse * rigidBodyB.invMass;
+                rigidBodyB.linearVelocity += impulse * rigidBodyB.invMass;
                 rigidBodyB.angularVelocity += Vector3.Cross(rB, impulse) * rigidBodyB.invInertia;
             }
         }

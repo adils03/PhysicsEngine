@@ -94,14 +94,13 @@ namespace PhysicsEngine
         protected virtual void AssignVerticesIndices()
         {
         }
-        protected virtual void LoadTexture(string diffuseMapPath = "Resources/container2.png", string specularMapPath = "Resources/container2_specular.png")
+        protected virtual void LoadTexture(string diffuseMapPath, string specularMapPath)
         {
         }
         protected void Render(PointLight[] pointLights, Camera cam, ShaderProgram shader, bool lighting = false)
         {
             shader.Use();
 
-          
                 diffuseMap.Use(TextureUnit.Texture0);           
                 specularMap.Use(TextureUnit.Texture1);
 
@@ -119,14 +118,14 @@ namespace PhysicsEngine
 
                 //gün ışığı
                 shader.SetUniform("dirLight.direction", new Vector3(1.0f));
-                shader.SetUniform("dirLight.ambient", new Vector3(0.3f));
-                shader.SetUniform("dirLight.diffuse", new Vector3(0.3f));
+                shader.SetUniform("dirLight.ambient", new Vector3(0.2f));
+                shader.SetUniform("dirLight.diffuse", new Vector3(0.2f));
                 shader.SetUniform("dirLight.specular", new Vector3(0.0f));
 
-                shader.SetUniform("material.diffuse", 0);
+                shader.SetUniform("material.diffuse", 1);
                 shader.SetUniform("material.specular", 1);
-                shader.SetUniform("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
-                shader.SetUniform("material.shininess", 32.0f);
+                shader.SetUniform("material.specular", new Vector3(0.2f, 0.2f, 0.2f));
+                shader.SetUniform("material.shininess", 12.0f);
 
                 shader.SetUniform("viewPos", cam.Position);
 
@@ -141,8 +140,8 @@ namespace PhysicsEngine
 
                     shader.SetUniform($"pointLights[{i}].position", pointLights[i].position);
                     shader.SetUniform($"pointLights[{i}].ambient", new Vector3(0.5f));
-                    shader.SetUniform($"pointLights[{i}].diffuse", new Vector3(2.5f));
-                    shader.SetUniform($"pointLights[{i}].specular", new Vector3(5.0f));
+                    shader.SetUniform($"pointLights[{i}].diffuse", new Vector3(1.0f));
+                    shader.SetUniform($"pointLights[{i}].specular", new Vector3(1.0f));
                 }
             }
             else
@@ -170,7 +169,7 @@ namespace PhysicsEngine
             shader.SetUniform("dirLight.diffuse", new Vector3(0.3f));
             shader.SetUniform("dirLight.specular", new Vector3(0.0f));
 
-            shader.SetUniform("material.shininess", 32.0f);
+            shader.SetUniform("material.shininess", 13.0f);
 
             shader.SetUniform("viewPos", cam.Position);
         

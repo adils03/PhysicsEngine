@@ -18,7 +18,7 @@ namespace PhysicsEngine
             };
 
 
-
+            Console.WriteLine("sea");
             using PlayGround game = new(settings);
             game.Run();
 
