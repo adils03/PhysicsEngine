@@ -82,12 +82,12 @@ namespace PhysicsEngine
             PointLight sharedLight = new PointLight()
             {
                 position = new Vector3(0.0f, 0.0f, 5.0f),// bu veriler güncelleniyor
-                constant = 0.1f,
-                linear = 0.00009f,
-                quadratic = 0.00032f,
-                ambient = new Vector3(1.0f, 1.0f, 1.0f), // Ortam (ambient) bileşeni
-                diffuse = new Vector3(1.0f, 1.0f, 1.0f), // Yayılma (diffuse) bileşeni
-                specular = new Vector3(2.0f, 2.0f, 2.0f) // Parlaklık (specular) bileşeni
+                constant = 1f,
+                linear = 0.09f,
+                quadratic = 0.032f,
+                ambient = new Vector3(0.08f), // Ortam (ambient) bileşeni
+                diffuse = new Vector3(1.5f), // Yayılma (diffuse) bileşeni
+                specular = new Vector3(3f) // Parlaklık (specular) bileşeni
             };
 
             // 4 adet aynı özelliklere sahip ışık oluşturma

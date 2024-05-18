@@ -180,7 +180,7 @@ namespace PhysicsEngine
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, 0, width, height, depth, ShapeType.Cube, color);
         }
 
-        public static void CreateCubeBodyBasic(Cube cube, bool isStatic, float restitution, Color4 color, out RigidBody rigidBody)
+        public static void CreateCubeBody(Cube cube, bool isStatic, float restitution, out RigidBody rigidBody)
         {
             float width = cube.Transform.Scale.X;
             float height = cube.Transform.Scale.Y;
@@ -190,7 +190,7 @@ namespace PhysicsEngine
             float area = width * height * depth;
             restitution = MathHelper.Clamp(restitution, 0.0f, 1.0f);
             float mass = area * density;
-            rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, 0, width, height, depth, ShapeType.Cube, color);
+            rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, 0, width, height, depth, ShapeType.Cube, Color4.AliceBlue);
         }
     }
 }

@@ -117,15 +117,15 @@ namespace PhysicsEngine
             {
 
                 //gün ışığı
-                shader.SetUniform("dirLight.direction", new Vector3(1.0f));
-                shader.SetUniform("dirLight.ambient", new Vector3(0.2f));
-                shader.SetUniform("dirLight.diffuse", new Vector3(0.2f));
-                shader.SetUniform("dirLight.specular", new Vector3(0.0f));
+                shader.SetUniform("dirLight.direction", new Vector3(-0.2f, -1.0f, -0.3f));
+                shader.SetUniform("dirLight.ambient", new Vector3(0.05f));
+                shader.SetUniform("dirLight.diffuse", new Vector3(0.4f));
+                shader.SetUniform("dirLight.specular", new Vector3(0.5f));
 
-                shader.SetUniform("material.diffuse", 1);
+                shader.SetUniform("material.diffuse", 0);
                 shader.SetUniform("material.specular", 1);
-                shader.SetUniform("material.specular", new Vector3(0.2f, 0.2f, 0.2f));
-                shader.SetUniform("material.shininess", 12.0f);
+                shader.SetUniform("material.specular", new Vector3(0.5f));
+                shader.SetUniform("material.shininess", 32.0f);
 
                 shader.SetUniform("viewPos", cam.Position);
 
@@ -133,15 +133,15 @@ namespace PhysicsEngine
                 // pointLights
                 for (int i = 0; i < pointLights.Length; i++)
                 {
-                    shader.SetUniform($"pointLights[{i}].constant", 1.0f);
-                    shader.SetUniform($"pointLights[{i}].linear", 0.09f);
-                    shader.SetUniform($"pointLights[{i}].quadratic", 0.032f);
+                    shader.SetUniform($"pointLights[{i}].constant", pointLights[i].constant);
+                    shader.SetUniform($"pointLights[{i}].linear", pointLights[i].linear);
+                    shader.SetUniform($"pointLights[{i}].quadratic", pointLights[i].quadratic);
 
 
                     shader.SetUniform($"pointLights[{i}].position", pointLights[i].position);
-                    shader.SetUniform($"pointLights[{i}].ambient", new Vector3(0.5f));
-                    shader.SetUniform($"pointLights[{i}].diffuse", new Vector3(1.0f));
-                    shader.SetUniform($"pointLights[{i}].specular", new Vector3(1.0f));
+                    shader.SetUniform($"pointLights[{i}].ambient", pointLights[i].ambient);
+                    shader.SetUniform($"pointLights[{i}].diffuse", pointLights[i].diffuse);
+                    shader.SetUniform($"pointLights[{i}].specular", pointLights[i].specular);
                 }
             }
             else
