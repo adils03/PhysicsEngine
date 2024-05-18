@@ -101,9 +101,8 @@ namespace PhysicsEngine
         {
             shader.Use();
 
-            if (lighting)
-                diffuseMap.Use(TextureUnit.Texture0);
-            else
+          
+                diffuseMap.Use(TextureUnit.Texture0);           
                 specularMap.Use(TextureUnit.Texture1);
 
             vertexBuffer.SetData(Vertices, Vertices.Length);//translate için
@@ -298,7 +297,7 @@ namespace PhysicsEngine
 
             Transform.Position = point;
         }
-        public void Scale(Vector3 scaleVector) // Scale must be applied before rotation.
+        public void Scale(Vector3 scaleVector)
         {
             // Scale the vertices
             for (int i = 0; i < Vertices.Length; i++)
@@ -314,8 +313,10 @@ namespace PhysicsEngine
                 Corners[i] = Transform.Position + Vector3.Multiply(fromCenter, scaleVector);
             }
 
+            // Update the transform scale
             Transform.Scale *= scaleVector;
         }
+
 
         public void DebugCorners()
         {

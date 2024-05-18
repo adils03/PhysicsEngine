@@ -18,10 +18,10 @@ namespace PhysicsEngine
 
         Vector3[] _pointLightPositions =
         {
-                    new Vector3( -5.0f,  10.0f,  -5.0f),
-                    new Vector3( -5.0f,  10.0f,  5.0f),
-                    new Vector3( 5.0f,   10.0f,  5.0f),
-                    new Vector3( 5.0f,   10.0f,  -5.0f)
+                    new Vector3( -5.0f,  15.0f,  -5.0f),
+                    new Vector3( -5.0f,  15.0f,  5.0f),
+                    new Vector3( 5.0f,   15.0f,  5.0f),
+                    new Vector3( 5.0f,   15.0f,  -5.0f)
         };
 
         protected ShaderProgram objectShader;
