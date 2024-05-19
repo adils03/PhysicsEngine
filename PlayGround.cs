@@ -24,7 +24,6 @@ namespace PhysicsEngine
         RigidBody cube2;
         RigidBody obstacle5;
 
-        PointCloud pointCloud;
         public PlayGround(NativeWindowSettings settings) : base(settings)
         {
             ShapeList = new List<Shape>();
@@ -44,11 +43,11 @@ namespace PhysicsEngine
             RigidBody.CreateCubeBody(3, 1, 3, new Vector3(0, 0, 0), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle2);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(0, -10, 5), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle3);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(10f, 0, 10f), 1, false, 0.5f, Color4.AliceBlue, out RigidBody obstacle4);
-            RigidBody.CreateCubeBody(5, 1, 5, new Vector3(0, -5f, 0), 1, true, 1f, Color4.AliceBlue, out obstacle5);
+            RigidBody.CreateCubeBody(25, 5 , 25, new Vector3(0, 0, 0), 1, true, 1f, Color4.AliceBlue, out obstacle5);
             RigidBody.CreateCubeBody(100, 1, 5, new Vector3(0, -7.3f, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle6);
             obstacle6.Rotate(new Vector3(90, 0, 0));
             RigidBody.CreateSphereBody(.5f, new Vector3(0.1f, 1, 0), 1, false, 1f, Color4.Red, out ball1);
-            RigidBody.CreateCubeBody(1, 1, 1, new Vector3(10f, 10, 0), 1, false, .7f, Color4.Red, out cube1);
+            RigidBody.CreateCubeBody(2, 2, 2, new Vector3(10f, 10, 0), 1, false, .7f, Color4.Red, out cube1);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(8, 10, 0), 1, false, .7f, Color4.Red, out cube2);
             RigidBody.CreateSphereBody(1, new Vector3(8, 10, 0), 1, false, .7f, Color4.Green, out ball2);
             RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, Color4.Yellow, out RigidBody ball3);
@@ -71,7 +70,6 @@ namespace PhysicsEngine
             //world.AddBody(obstacle4);
             world.AddBody(obstacle5);
             //world.AddBody(obstacle6);
-            pointCloud = new PointCloud(Color4.Red, Vector3.Zero);
         }
         int index = 0;
         protected override void OnUpdateFrame(FrameEventArgs e)
@@ -133,13 +131,13 @@ namespace PhysicsEngine
             sphere2.RenderBasic();
             sphere3.RenderBasic();
 
-            pointCloud.RenderBasic();//lazım
 
 
+            Vector3 pos = Collisions.GetCubeFaces(obstacle5.shape.GetVertices())[5].FaceNormal * 2.5f;
+            Vector3 pos2 = Collisions.GetCubeFaces(obstacle5.shape.GetVertices())[5].a;
 
 
-
-            Collisions.FindContactPoints(obstacle5, ball1, out Vector3 contact1, out Vector3 contact2,
+            Collisions.FindContactPoints(cube1, ball1, out Vector3 contact1, out Vector3 contact2,
                 out Vector3 contact3, out Vector3 contact4, out int contactcount);
             sphere.Teleport(contact1);
             sphere2.Teleport(contact2);

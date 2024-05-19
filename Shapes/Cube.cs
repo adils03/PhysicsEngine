@@ -116,11 +116,11 @@ namespace PhysicsEngine
             
         }
 
-        public override Vector3[]? GetVertices()
+        public override Vector3[] GetVertices()
         {
             return Corners;
         }
-        public override Vector3[]? GetNormals()
+        public override Vector3[] GetNormals()
         {
             Vector3[] normals = new Vector3[6];
             int normalIndex = 0;
