@@ -1,10 +1,5 @@
 ﻿using OpenTK.Mathematics;
 using System;
-using System.Collections.Generic;
-using System.Collections.Specialized;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PhysicsEngine
 {
@@ -24,13 +19,8 @@ namespace PhysicsEngine
             min = new Vector3(minX, minY, minZ);
             max = new Vector3(maxX, maxY, maxZ);
         }
-        public Vector3 HalfSize
-        {
-            get
-            {
-                return (max - min) * 0.5f;
-            }
-        }
+
+        public Vector3 HalfSize => (max - min) * 0.5f;
     }
 
     public enum ShapeType
@@ -38,13 +28,13 @@ namespace PhysicsEngine
         Sphere = 0,
         Cube = 1
     }
+
     public class RigidBody
     {
         public Vector3 position;
         public Vector3 linearVelocity;
         private Vector3 angle;
         public Vector3 angularVelocity;
-
         private Vector3 force;
 
         public readonly float density;
@@ -52,47 +42,27 @@ namespace PhysicsEngine
         public readonly float invMass;
         public readonly float restitution;
         public readonly float area;
-
         public readonly float inertia;
         public readonly float invInertia;
-
         public readonly bool isStatic;
-
         public readonly float radius;
         public readonly float width;
         public readonly float height;
         public readonly float depth;
-
-        private AABB aabb;
-
         public readonly ShapeType shapeType;
         public readonly Shape shape;
 
-        public Vector3 LinearVelocity
-        {
-            get { return linearVelocity; }
-            internal set
-            {
-                linearVelocity = value;
-            }
-        }
-
-
-        public RigidBody(Vector3 position, float density, float mass, float restitution, float area
-            , bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, Color4 color)
+        public RigidBody(Vector3 position, float density, float mass, float restitution, float area, bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, Color4 color)
         {
             this.position = position;
-            linearVelocity = Vector3.Zero;
-            angle = Vector3.Zero;
-            angularVelocity = Vector3.Zero;
-
+            this.linearVelocity = Vector3.Zero;
+            this.angle = Vector3.Zero;
+            this.angularVelocity = Vector3.Zero;
             this.force = Vector3.Zero;
-
             this.density = density;
             this.mass = mass;
             this.restitution = restitution;
             this.area = area;
-
             this.isStatic = isStatic;
             this.radius = radius;
             this.width = width;
@@ -112,29 +82,24 @@ namespace PhysicsEngine
                 invInertia = 0f;
             }
 
-            if (shapeType == ShapeType.Sphere)
+            shape = shapeType switch
             {
-                //this.shape = new Sphere(position, radius, 15, color);
-                this.shape = new Sphere(ShapeShaderType.ColorLight,position,color,radius);
-            }
-            if (shapeType == ShapeType.Cube)
-            {
-                this.shape = new Cube(position,ShapeShaderType.Textured);
-                shape.Scale(new Vector3(width, height, depth));
-            }
+                ShapeType.Sphere => new Sphere(ShapeShaderType.ColorLight, position, color, radius),
+                ShapeType.Cube => new Cube(position, ShapeShaderType.Textured, new Vector3(width, height, depth)),
+                _ => throw new ArgumentException("Unsupported shape type")
+            };
         }
+
         private float CalculateRotationalInertia()
         {
-            if (shapeType is ShapeType.Sphere)
+            return shapeType switch
             {
-                return (2f / 5) * mass * radius * radius;
-            }
-            else if (shapeType is ShapeType.Cube)
-            {
-                return (1f / 12) * mass * (height * height + width * width);
-            }
-            return 0;
+                ShapeType.Sphere => (2f / 5) * mass * radius * radius,
+                ShapeType.Cube => (1f / 12) * mass * (height * height + width * width),
+                _ => 0
+            };
         }
+
         public AABB GetAABB()
         {
             float minX = float.MaxValue;
@@ -144,13 +109,11 @@ namespace PhysicsEngine
             float maxY = float.MinValue;
             float maxZ = float.MinValue;
 
-            if (shapeType is ShapeType.Cube)
+            if (shapeType == ShapeType.Cube)
             {
                 Vector3[] vertices = shape.GetVertices();
-                for (int i = 0; i < vertices.Length; i++)
+                foreach (var v in vertices)
                 {
-                    Vector3 v = vertices[i];
-
                     if (v.X < minX) minX = v.X;
                     if (v.Y < minY) minY = v.Y;
                     if (v.Z < minZ) minZ = v.Z;
@@ -159,7 +122,7 @@ namespace PhysicsEngine
                     if (v.Z > maxZ) maxZ = v.Z;
                 }
             }
-            else if (shapeType is ShapeType.Sphere)
+            else if (shapeType == ShapeType.Sphere)
             {
                 minX = position.X - radius;
                 minY = position.Y - radius;
@@ -171,16 +134,13 @@ namespace PhysicsEngine
 
             return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         }
+
         public void Update(float time, Vector3 gravity, int iterations)
         {
+            shape.RenderBasic();
 
-            shape.RenderBasic();//
+            if (isStatic) return;
 
-            //f = ma
-            if (isStatic)
-            {
-                return;
-            }
             time /= iterations;
             Vector3 acceleration = force / mass;
 
@@ -193,49 +153,44 @@ namespace PhysicsEngine
             shape.Rotate(angle);
 
             position = shape.Transform.Position;
-
             angle = Vector3.Zero;
-
             force = Vector3.Zero;
-
         }
-
-        public void AddForce(Vector3 amount)
-        {
-            force = amount;
-        }
-
-        public void Move(Vector3 moveVector)
-        {
-            shape.Translate(moveVector);
-        }
-        public void Rotate(Vector3 rotateVector)
-        {
-            shape.Rotate(rotateVector);
-        }
+        public void AddForce(Vector3 amount) => force += amount;
+        public void Move(Vector3 moveVector) => shape.Translate(moveVector);
+        public void Rotate(Vector3 rotateVector) => shape.Rotate(rotateVector);
         public void MoveTo(Vector3 target)
         {
-            this.position = target;
+            position = target;
             shape.Teleport(target);
         }
-        public static void CreateSphereBody(float radius, Vector3 position, float density, bool isStatic, float restitution, Color4 color,
-                                       out RigidBody rigidBody)
+        public static void CreateSphereBody(float radius, Vector3 position, float density, bool isStatic, float restitution, Color4 color, out RigidBody rigidBody)
         {
-
             float area = radius * radius * MathF.PI;
             restitution = MathHelper.Clamp(restitution, 0.0f, 1.0f);
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, radius, 0, 0, 0, ShapeType.Sphere, color);
         }
-        public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Color4 color
-                                        , out RigidBody rigidBody)
-        {
 
+        public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Color4 color, out RigidBody rigidBody)
+        {
             float area = width * height * depth;
             restitution = MathHelper.Clamp(restitution, 0.0f, 1.0f);
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, 0, width, height, depth, ShapeType.Cube, color);
         }
+
+        public static void CreateCubeBody(Cube cube, bool isStatic, float restitution, out RigidBody rigidBody)
+        {
+            float width = cube.Transform.Scale.X;
+            float height = cube.Transform.Scale.Y;
+            float depth = cube.Transform.Scale.Z;
+            float density = 1;
+            Vector3 position = cube.Transform.Position;
+            float area = width * height * depth;
+            restitution = MathHelper.Clamp(restitution, 0.0f, 1.0f);
+            float mass = area * density;
+            rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, 0, width, height, depth, ShapeType.Cube, Color4.AliceBlue);
+        }
     }
 }
-

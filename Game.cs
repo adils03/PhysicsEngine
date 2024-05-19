@@ -13,17 +13,10 @@ namespace PhysicsEngine
         protected Camera camera;
         bool isLineMod = false;
 
-        Sphere[] lampObjects = new Sphere[4];
-        PointLight[] pointLights;
 
-        Vector3[] _pointLightPositions =
-        {
-                    new Vector3( -5.0f,  15.0f,  -5.0f),
-                    new Vector3( -5.0f,  15.0f,  5.0f),
-                    new Vector3( 5.0f,   15.0f,  5.0f),
-                    new Vector3( 5.0f,   15.0f,  -5.0f)
-        };
-
+        protected Sphere[] lampObjects = new Sphere[4];
+        protected PointLight[] pointLights;
+      
         protected ShaderProgram objectShader;
         protected ShaderProgram lightingShader;
         protected ShaderProgram lightingColorShader;
@@ -49,15 +42,7 @@ namespace PhysicsEngine
             GL.ClearColor(0.1f, 0.2f, 0.3f, 1.0f);
             GL.Enable(EnableCap.DepthTest);
             IsVisible = true;
-
-            PointLightManager.GetInstance().SetPointLightPosition(this._pointLightPositions);
-
-            pointLights = PointLightManager.GetInstance().GetPointLights();
-
-            for (int i = 0; i < pointLights.Length; i++)
-            {
-                lampObjects[i] = new Sphere(pointLights[i].position, 0.2f, 15, Color4.White);
-            }
+          
 
         }
 
@@ -66,12 +51,7 @@ namespace PhysicsEngine
             base.OnRenderFrame(e);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            for (int i = 0; i < pointLights.Length; i++)
-            {
-
-                lampObjects[i].RenderObject(camera, objectShader);
-            }
-
+       
 
         }
 
