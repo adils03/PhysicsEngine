@@ -15,6 +15,7 @@ namespace PhysicsEngine
         Sphere sphere;
         Sphere sphere2;
         Sphere sphere3;
+        Sphere sphere4;
         Cube cubeRed;
         PhysicsWorld world;
 
@@ -30,6 +31,7 @@ namespace PhysicsEngine
             sphere = new Sphere(Vector3.Zero, 0.3f, 5, Color4.Red);
             sphere2 = new Sphere(Vector3.Zero, 0.1f, 5, Color4.Red);
             sphere3 = new Sphere(Vector3.Zero, 0.1f, 5, Color4.Red);
+            sphere4 = new Sphere(Vector3.Zero, 0.1f, 5, Color4.Red);
         }
 
         protected override void OnLoad()
@@ -43,11 +45,11 @@ namespace PhysicsEngine
             RigidBody.CreateCubeBody(3, 1, 3, new Vector3(0, 0, 0), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle2);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(0, -10, 5), 1, true, 1, Color4.AliceBlue, out RigidBody obstacle3);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(10f, 0, 10f), 1, false, 0.5f, Color4.AliceBlue, out RigidBody obstacle4);
-            RigidBody.CreateCubeBody(25, 5 , 25, new Vector3(0, 0, 0), 1, true, 1f, Color4.AliceBlue, out obstacle5);
+            RigidBody.CreateCubeBody(25, 5 , 25, new Vector3(5, 0, 0), 1, true, 1f, Color4.AliceBlue, out obstacle5);
             RigidBody.CreateCubeBody(100, 1, 5, new Vector3(0, -7.3f, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle6);
             obstacle6.Rotate(new Vector3(90, 0, 0));
             RigidBody.CreateSphereBody(.5f, new Vector3(0.1f, 1, 0), 1, false, 1f, Color4.Red, out ball1);
-            RigidBody.CreateCubeBody(2, 2, 2, new Vector3(10f, 10, 0), 1, false, .7f, Color4.Red, out cube1);
+            RigidBody.CreateCubeBody(2, 2, 2, new Vector3(4f, 10, 0), 1, false, .7f, Color4.Red, out cube1);
             RigidBody.CreateCubeBody(1, 1, 1, new Vector3(8, 10, 0), 1, false, .7f, Color4.Red, out cube2);
             RigidBody.CreateSphereBody(1, new Vector3(8, 10, 0), 1, false, .7f, Color4.Green, out ball2);
             RigidBody.CreateSphereBody(1, new Vector3(8, 12, 0), 1, false, .7f, Color4.Yellow, out RigidBody ball3);
@@ -58,6 +60,7 @@ namespace PhysicsEngine
             obstacle2.Rotate(new Vector3(0, 0, 45));
             world.AddBody(ball1);
             //world.AddBody(ball2);
+            //cube1.Rotate(new Vector3(30,0,45));
             world.AddBody(cube1);
             //world.AddBody(cube2);
             //world.AddBody(ball3);
@@ -113,13 +116,13 @@ namespace PhysicsEngine
             }
             if (input.IsKeyPressed(Keys.R))
             {
-                index++;
+                cube1.Rotate(new Vector3(30, 0, 0));
             }
             if (dx != 0 || dy != 0 || dz != 0)
             {
                 Vector3 forceDirection = Vector3.Normalize(new Vector3(dx, dy, dz));
                 Vector3 force = forceDirection * forceMagnitude;
-                ball1.AddForce(force);
+                cube1.AddForce(force);
             }
         }
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -130,6 +133,7 @@ namespace PhysicsEngine
             sphere.RenderBasic();
             sphere2.RenderBasic();
             sphere3.RenderBasic();
+            sphere4.RenderBasic();
 
 
 
@@ -137,12 +141,13 @@ namespace PhysicsEngine
             Vector3 pos2 = Collisions.GetCubeFaces(obstacle5.shape.GetVertices())[5].a;
 
 
-            Collisions.FindContactPoints(cube1, ball1, out Vector3 contact1, out Vector3 contact2,
+            Collisions.FindContactPoints(obstacle5, cube1, out Vector3 contact1, out Vector3 contact2,
                 out Vector3 contact3, out Vector3 contact4, out int contactcount);
             sphere.Teleport(contact1);
             sphere2.Teleport(contact2);
             sphere3.Teleport(contact3);
-
+            sphere4.Teleport(contact4);
+            Console.WriteLine(contactcount);
             SwapBuffers();
         }
 

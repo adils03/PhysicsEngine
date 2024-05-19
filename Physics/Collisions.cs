@@ -1,4 +1,5 @@
 ﻿using OpenTK.Mathematics;
+using System.Diagnostics.Contracts;
 
 namespace PhysicsEngine
 {
@@ -68,11 +69,11 @@ namespace PhysicsEngine
             {
                 if (shapeTypeB is ShapeType.Cube)
                 {
-                    //FindContactPointsCubes(bodyA.shape.GetVertices(), bodyB.shape.GetVertices(), out contact1, out contact2, out contact3, out contact4, out contactCount);
+                    FindContactPointsCubes(bodyA.shape.GetVertices(), bodyB.shape.GetVertices(), out contact1, out contact2, out contact3, out contact4, out contactCount);
                 }
                 else if (shapeTypeB is ShapeType.Sphere)
                 {
-                    FindContactPointSphereCube(bodyB.position, bodyA.shape.GetVertices(), out contact1, out contact2, out contact3, out contact4);
+                    FindContactPointSphereCube(bodyB.position, bodyA.shape.GetVertices(), out contact1);
                     contactCount = 1;
                 }
             }
@@ -80,7 +81,7 @@ namespace PhysicsEngine
             {
                 if (shapeTypeB is ShapeType.Cube)
                 {
-                    FindContactPointSphereCube(bodyA.position, bodyB.shape.GetVertices(), out contact1, out contact2, out contact3, out contact4);
+                    FindContactPointSphereCube(bodyA.position, bodyB.shape.GetVertices(), out contact1);
                     contactCount = 1;
                 }
                 else if (shapeTypeB is ShapeType.Sphere)
@@ -93,41 +94,134 @@ namespace PhysicsEngine
 
 
         }
-        private static void FindContactPointSphereCube(Vector3 sphereCenter, Vector3[] vertices, out Vector3 contact1, out Vector3 cp1, out Vector3 cp2, out Vector3 closestFacePoint)
+
+        private static void FindContactPointsCubes(Vector3[] verticesA, Vector3[] verticesB,
+            out Vector3 contact1, out Vector3 contact2, out Vector3 contact3, out Vector3 contact4, out int contactCount)
         {
-            cp1 = Vector3.Zero;//for Debug
-            cp2 = Vector3.Zero;//for Debug
+            contact1 = Vector3.Zero;
+            contact2 = Vector3.Zero;
+            contact3 = Vector3.Zero;
+            contact4 = Vector3.Zero;
+            contactCount = 0;
+
+            Face[] facesA = GetCubeFaces(verticesA);
+            Face[] facesB = GetCubeFaces(verticesB);
+
+            float minDistance = float.MaxValue;
+
+            for (int i = 0; i < verticesB.Length; i++)
+            {
+                Face closestFaceA = FindClosestFace(facesA, verticesB[i]);
+                Vector3 closestPoint = FindClosestPointOnFace(closestFaceA, verticesB[i], out float distance);
+
+                if (NearlyEqual(distance, minDistance))
+                {
+                    if (!NearlyEqual(closestPoint, contact1) &&
+                        !NearlyEqual(closestPoint, contact2) &&
+                        !NearlyEqual(closestPoint, contact3) &&
+                        !NearlyEqual(closestPoint, contact4))
+                    {
+                        if (contactCount == 1)
+                            contact2 = closestPoint;
+                        else if (contactCount == 2)
+                            contact3 = closestPoint;
+                        else if (contactCount == 3)
+                            contact4 = closestPoint;
+
+                        if (contactCount < 4)
+                            contactCount++;
+                    }
+                }
+                else if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    contact1 = closestPoint;
+                    contact2 = default;
+                    contact3 = default;
+                    contact4 = default;
+                    contactCount = 1;
+                }
+
+            }
+            for (int i = 0; i < verticesA.Length; i++)
+            {
+                Face closestFaceB = FindClosestFace(facesB, verticesA[i]);
+                Vector3 closestPoint = FindClosestPointOnFace(closestFaceB, verticesA[i], out float distance);
+
+                if (NearlyEqual(distance, minDistance))
+                {
+                    if (!NearlyEqual(closestPoint, contact1) &&
+                        !NearlyEqual(closestPoint, contact2) &&
+                        !NearlyEqual(closestPoint, contact3) &&
+                        !NearlyEqual(closestPoint, contact4))
+                    {
+                        if (contactCount == 1)
+                            contact2 = closestPoint;
+                        else if (contactCount == 2)
+                            contact3 = closestPoint;
+                        else if (contactCount == 3)
+                            contact4 = closestPoint;
+
+                        if (contactCount < 4)
+                            contactCount++;
+                    }
+                }
+                else if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    contact1 = closestPoint;
+                    contact2 = default;
+                    contact3 = default;
+                    contact4 = default;
+                    contactCount = 1;
+                }
+
+            }
 
 
+        }
+        private static void FindContactPointSphereCube(Vector3 sphereCenter, Vector3[] vertices, out Vector3 contact1)
+        {
             Face[] faces = GetCubeFaces(vertices);
+            Face closestFace = FindClosestFace(faces, sphereCenter);
+
+            contact1 = FindClosestPointOnFace(closestFace, sphereCenter,out float distance);
+        }
+
+        private static Vector3 FindClosestPointOnFace(Face face, Vector3 point,out float distance)
+        {
+            Edge edge1 = face.edge1;
+            Edge edge2 = face.edge2;
+
+            Collisions.PointSegmentDistance(point, edge1, out float distanceSquared, out Vector3 contact1);
+            Collisions.PointSegmentDistance(point, edge2, out float distanceSquared2, out Vector3 contact2);
+
+            Vector3 sameCorner = face.b;
+
+            Vector3 contact = (contact1 + contact2) / 2;
+
+            Vector3 delta = contact - sameCorner;
+            contact += delta;
+            distance = Vector3.DistanceSquared(point,contact);
+            return contact;
+        }
+
+
+        private static Face FindClosestFace(Face[] faces, Vector3 point)
+        {
             Face closestFace = new Face();
             float closestFaceValue = float.MinValue;
 
             for (int i = 0; i < faces.Length; i++)
             {
-                float value = Vector3.Dot(faces[i].FaceNormal, sphereCenter - faces[i].faceCenter);
+                float value = Vector3.Dot(faces[i].FaceNormal, point - faces[i].faceCenter);
                 if (value > closestFaceValue)
                 {
                     closestFaceValue = value;
                     closestFace = faces[i];
                 }
             }
-
-            Edge edge1 = closestFace.edge1;
-            Edge edge2 = closestFace.edge2;
-
-            Collisions.PointSegmentDistance(sphereCenter, edge1, out float distanceSquared, out Vector3 contact);
-            Collisions.PointSegmentDistance(sphereCenter, edge2, out float distanceSquared2, out Vector3 contact2);
-
-            Vector3 sameCorner = closestFace.b;
-
-            contact1 = (contact + contact2) / 2;
-            cp1 = contact;
-            cp2 = contact2;
-
-            Vector3 delta = contact1 - sameCorner;
-            contact1 += delta;
-            closestFacePoint = (closestFace.a + closestFace.b + closestFace.c + closestFace.d) / 4;
+            return closestFace;
         }
         private static Edge[] GetEdges(Vector3[] vertices)
         {
@@ -332,7 +426,12 @@ namespace PhysicsEngine
             Vector3 faceNormalB1 = faceNormalsB[0];
             Vector3 faceNormalB2 = faceNormalsB[2];
             Vector3 faceNormalB3 = faceNormalsB[4];
-
+            axises.Add(faceNormalA1);
+            axises.Add(faceNormalA2);
+            axises.Add(faceNormalA3);
+            axises.Add(faceNormalB1);
+            axises.Add(faceNormalB2);
+            axises.Add(faceNormalB3);
             AddAxis(axises, faceNormalA1, faceNormalB1);
             AddAxis(axises, faceNormalA1, faceNormalB2);
             AddAxis(axises, faceNormalA1, faceNormalB3);
@@ -373,12 +472,12 @@ namespace PhysicsEngine
             return true;
         }
 
-        private static void AddAxis(List<Vector3> axises, Vector3 faceNormalA1, Vector3 faceNormalB1)
+        private static void AddAxis(List<Vector3> axises, Vector3 faceNormalA, Vector3 faceNormalB)
         {
-            Vector3 faceNormalCrossA1B1 = Vector3.Cross(faceNormalA1, faceNormalB1).Normalized();
-            if (faceNormalCrossA1B1.Length < 1.01f)
+            Vector3 faceNormalCross = Vector3.Cross(faceNormalA, faceNormalB).Normalized();
+            if (faceNormalCross.Length < 1.01f)
             {
-                axises.Add(faceNormalCrossA1B1);
+                axises.Add(faceNormalCross);
             }
         }
 
