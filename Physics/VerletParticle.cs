@@ -23,7 +23,7 @@ public class VerletParticle
         Mass = mass;
         IsFixed = isFixed;
         IsControlled = isControlled;
-        Shape = new Cube(initialPosition, ShapeShaderType.Textured, Color4.Brown, new Vector3(0.1f));
+        Shape = new Cube(initialPosition, ShapeShaderType.ColorLight, Color4.Chocolate, new Vector3(0.1f));
     }
 
     public float KineticEnergy
@@ -135,7 +135,7 @@ public class StringCubes
 
             if (previousParticle != null)
             {
-                float restLength = (particle.Position - previousParticle.Position).Length;
+                float restLength = (particle.Position - previousParticle.Position).Length-0.05f;
                 Constraints.Add(new Constraint(previousParticle, particle, restLength));
             }
 
