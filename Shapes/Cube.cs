@@ -40,6 +40,18 @@ namespace PhysicsEngine
             CreateBuffers();
         }
 
+        public Cube(Vector3 position, ShapeShaderType type,Color4 color,Vector3 scale)
+        {
+            base.ShaderType = type;
+            base.Transform.Position = position;
+            base.Color = color;
+            base.Transform.Scale = scale;
+            AssignVerticesIndices();
+            LoadTexture();
+            CreateBuffers();
+        }
+    
+
         public Cube(string texturePath1)
         {
             AssignVerticesIndices();
@@ -145,7 +157,7 @@ namespace PhysicsEngine
         protected override void LoadTexture(string diffuseMapPath = "Resources/container2.png", string specularMapPath = "Resources/container2_specular.png")
         {
             base.diffuseMap = Texture.LoadFromFile(diffuseMapPath);
-            base.specularMap = Texture.LoadFromFile(diffuseMapPath);
+            base.specularMap = Texture.LoadFromFile(specularMapPath);
         }
 
     }
