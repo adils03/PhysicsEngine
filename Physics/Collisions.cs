@@ -17,12 +17,12 @@ namespace PhysicsEngine
             {
                 if (shapeTypeB is ShapeType.Cube)
                 {
-                    result = Collisions.IntersectCubes((Cube)bodyA.shape, (Cube)bodyB.shape, 0.01f, out normal, out depth);
+                    result = Collisions.IntersectCubes((Cube)bodyA.shape, (Cube)bodyB.shape, out normal, out depth);
                     return result;
                 }
                 else if (shapeTypeB is ShapeType.Sphere)
                 {
-                    result = Collisions.IntersectCubeSphere(true, (Cube)bodyA.shape, (Sphere)bodyB.shape, 0, out normal, out depth);
+                    result = Collisions.IntersectCubeSphere(true, (Cube)bodyA.shape, (Sphere)bodyB.shape, out normal, out depth);
                     return result;
                 }
             }
@@ -30,7 +30,7 @@ namespace PhysicsEngine
             {
                 if (shapeTypeB is ShapeType.Cube)
                 {
-                    result = Collisions.IntersectCubeSphere(false, (Cube)bodyB.shape, (Sphere)bodyA.shape, 0, out normal, out depth);
+                    result = Collisions.IntersectCubeSphere(false, (Cube)bodyB.shape, (Sphere)bodyA.shape, out normal, out depth);
                     return result;
                 }
                 else if (shapeTypeB is ShapeType.Sphere)
@@ -178,7 +178,6 @@ namespace PhysicsEngine
 
             }
 
-
         }
         private static void FindContactPointSphereCube(Vector3 sphereCenter, Vector3[] vertices, out Vector3 contact1)
         {
@@ -316,7 +315,7 @@ namespace PhysicsEngine
             return normals;
         }
 
-        public static bool IntersectCubeSphere(bool reverse, Cube cube, Sphere sphere, float tolerance,
+        public static bool IntersectCubeSphere(bool reverse, Cube cube, Sphere sphere,
             out Vector3 normal, out float depth)
         {
             normal = Vector3.Zero;
@@ -337,7 +336,7 @@ namespace PhysicsEngine
             foreach (Vector3 axis in axises)
             {
                 ProjectVertices(vertices, axis.Normalized(), out float minA, out float maxA);
-                ProjectCircle(sphere, axis.Normalized(), tolerance, out float minB, out float maxB);
+                ProjectCircle(sphere, axis.Normalized(), out float minB, out float maxB);
                 if (minA >= maxB || minB >= maxA)
                 {
                     return false;
@@ -369,10 +368,10 @@ namespace PhysicsEngine
             return true;
         }
 
-        private static void ProjectCircle(Sphere sphere, Vector3 axis, float radiusTolerance, out float min, out float max)
+        private static void ProjectCircle(Sphere sphere, Vector3 axis, out float min, out float max)
         {
             Vector3 direction = Vector3.Normalize(axis);
-            Vector3 directionAndRadius = direction * (sphere.radius - radiusTolerance);
+            Vector3 directionAndRadius = direction * (sphere.radius);
             Vector3 p1 = sphere.Transform.Position + directionAndRadius;
             Vector3 p2 = sphere.Transform.Position - directionAndRadius;
             min = Vector3.Dot(p1, axis);
@@ -407,7 +406,7 @@ namespace PhysicsEngine
 
 
 
-        public static bool IntersectCubes(Cube shapeA, Cube shapeB, float tolerance, out Vector3 normal, out float depth)
+        public static bool IntersectCubes(Cube shapeA, Cube shapeB, out Vector3 normal, out float depth)
         {
             normal = Vector3.Zero;
             depth = float.MaxValue;
@@ -432,21 +431,24 @@ namespace PhysicsEngine
             axises.Add(faceNormalB1);
             axises.Add(faceNormalB2);
             axises.Add(faceNormalB3);
-            AddAxis(axises, faceNormalA1, faceNormalB1);
-            AddAxis(axises, faceNormalA1, faceNormalB2);
-            AddAxis(axises, faceNormalA1, faceNormalB3);
-            AddAxis(axises, faceNormalA2, faceNormalB1);
-            AddAxis(axises, faceNormalA2, faceNormalB2);
-            AddAxis(axises, faceNormalA2, faceNormalB3);
-            AddAxis(axises, faceNormalA3, faceNormalB1);
-            AddAxis(axises, faceNormalA3, faceNormalB2);
-            AddAxis(axises, faceNormalA3, faceNormalB3);
-
+            axises.Add(Vector3.Cross(faceNormalA1, faceNormalB1));
+            axises.Add(Vector3.Cross(faceNormalA2, faceNormalB2));
+            axises.Add(Vector3.Cross(faceNormalA3, faceNormalB3));
+            axises.Add(Vector3.Cross(faceNormalA1, faceNormalB1));
+            axises.Add(Vector3.Cross(faceNormalA2, faceNormalB2));
+            axises.Add(Vector3.Cross(faceNormalA3, faceNormalB3));
+            axises.Add(Vector3.Cross(faceNormalA1, faceNormalB1));
+            axises.Add(Vector3.Cross(faceNormalA2, faceNormalB2));
+            axises.Add(Vector3.Cross(faceNormalA3, faceNormalB3));
             foreach (Vector3 axis in axises)
             {
+                if(axis == Vector3.Zero)
+                {
+                    return true;
+                }
                 ProjectVertices(verticesA, axis.Normalized(), out float minA, out float maxA);
                 ProjectVertices(verticesB, axis.Normalized(), out float minB, out float maxB);
-                if (minA + tolerance >= maxB || minB + tolerance >= maxA)
+                if (minA  >= maxB || minB  >= maxA)
                 {
                     return false;
                 }
@@ -470,15 +472,6 @@ namespace PhysicsEngine
 
 
             return true;
-        }
-
-        private static void AddAxis(List<Vector3> axises, Vector3 faceNormalA, Vector3 faceNormalB)
-        {
-            Vector3 faceNormalCross = Vector3.Cross(faceNormalA, faceNormalB).Normalized();
-            if (faceNormalCross.Length < 1.01f)
-            {
-                axises.Add(faceNormalCross);
-            }
         }
 
         private static void ProjectVertices(Vector3[] vertices, Vector3 axis, out float min, out float max)
@@ -526,7 +519,7 @@ namespace PhysicsEngine
             return faces;
         }
 
-        private static bool NearlyEqual(Vector3 a, Vector3 b)
+        public static bool NearlyEqual(Vector3 a, Vector3 b)
         {
             return NearlyEqual(a.X, b.X) && NearlyEqual(a.Y, b.Y) && NearlyEqual(a.Z, b.Z);
         }

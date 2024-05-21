@@ -33,17 +33,22 @@ namespace PhysicsEngine
     {
         public Vector3 position;
         public Vector3 linearVelocity;
-        private Vector3 angle;
+        public Vector3 angle;
         public Vector3 angularVelocity;
         private Vector3 force;
+
+        public readonly float damping;
 
         public readonly float density;
         public readonly float mass;
         public readonly float invMass;
         public readonly float restitution;
         public readonly float area;
-        public readonly float inertia;
-        public readonly float invInertia;
+        public readonly float inertiaX;
+        public readonly float inertiaY;
+        public readonly float inertiaZ;
+        public readonly float staticFriction;
+        public readonly float dynamicFriction;
         public readonly bool isStatic;
         public readonly float radius;
         public readonly float width;
@@ -69,17 +74,19 @@ namespace PhysicsEngine
             this.height = height;
             this.depth = depth;
             this.shapeType = shapeType;
-
-            this.inertia = CalculateRotationalInertia();
+            this.staticFriction = 0.6f;
+            this.dynamicFriction = 0.4f;
+            this.damping = 0.995f;
+            this.inertiaX = CalculateRotationalInertiaX();
+            this.inertiaY = CalculateRotationalInertiaY();
+            this.inertiaZ = CalculateRotationalInertiaZ();
             if (!isStatic)
             {
                 invMass = 1.0f / mass;
-                invInertia = 1.0f / inertia;
             }
             else
             {
                 invMass = 0f;
-                invInertia = 0f;
             }
 
             shape = shapeType switch
@@ -90,12 +97,30 @@ namespace PhysicsEngine
             };
         }
 
-        private float CalculateRotationalInertia()
+        private float CalculateRotationalInertiaX()
         {
             return shapeType switch
             {
                 ShapeType.Sphere => (2f / 5) * mass * radius * radius,
-                ShapeType.Cube => (1f / 12) * mass * (height * height + width * width),
+                ShapeType.Cube => (1f / 12) * mass * (height * height + depth * depth),
+                _ => 0
+            };
+        }
+        private float CalculateRotationalInertiaY()
+        {
+            return shapeType switch
+            {
+                ShapeType.Sphere => (2f / 5) * mass * radius * radius,
+                ShapeType.Cube => (1f / 12) * mass * (width * width + depth * depth),
+                _ => 0
+            };
+        }
+        private float CalculateRotationalInertiaZ()
+        {
+            return shapeType switch
+            {
+                ShapeType.Sphere => (2f / 5) * mass * radius * radius,
+                ShapeType.Cube => (1f / 12) * mass * (width * width + height * height),
                 _ => 0
             };
         }
@@ -143,14 +168,17 @@ namespace PhysicsEngine
 
             time /= iterations;
             Vector3 acceleration = force / mass;
-
-            linearVelocity += gravity * time;
             linearVelocity += acceleration * time;
 
-            shape.Translate(linearVelocity * time);
+            linearVelocity += gravity * time;
+
+            Move(linearVelocity * time);
             angle += angularVelocity * time;
 
-            shape.Rotate(angle);
+            Rotate(angle);
+
+            //linearVelocity *= 0.99999999f;
+            //angularVelocity *= damping;
 
             position = shape.Transform.Position;
             angle = Vector3.Zero;
