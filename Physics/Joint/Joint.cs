@@ -1,8 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
+﻿using OpenTK.Mathematics;
+
 
 namespace PhysicsEngine
 {
@@ -23,10 +20,10 @@ namespace PhysicsEngine
             rigiB = this.jointConnection.rigidBodyB;
             anchorBId = this.jointConnection.anchorBId;
 
-            /*if (GetType() == typeof(Joint))
-            {
-                throw new InvalidOperationException("Cannot construct instances of abstract class 'Joint'");
-            }*/
+            //if (GetType() == typeof(Joint))
+            //{
+            //    throw new InvalidOperationException("Cannot construct instances of abstract class 'Joint'");
+            //}
         }
 
         public Vector3 GetAnchorAPos()

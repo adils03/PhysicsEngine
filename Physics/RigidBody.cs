@@ -147,28 +147,50 @@ namespace PhysicsEngine
 
             if (isStatic) return;
 
+            // Zaman dilimini iterasyon sayısına böl
             time /= iterations;
-            Vector3 acceleration = force / mass;
 
+            // Kuvvet birikimcisini kullanarak lineer hızlanmayı hesapla
+            Vector3 totalForce = force + forceAccumulator; // Eklenen kuvvet birikimcisini kullan
+            Vector3 acceleration = totalForce / mass;
+
+            // Lineer hızı güncelle
             linearVelocity += gravity * time;
             linearVelocity += acceleration * time;
 
+            // Konumu güncelle
             shape.Translate(linearVelocity * time);
-            angle += angularVelocity * time;
 
+            // Açısal hızlanmayı hesapla
+            Vector3 angularAcceleration = torqueAccumulator / inertia;
+
+            // Açısal hızı güncelle
+            angularVelocity += angularAcceleration * time;
+
+            // Açıyı güncelle
+            angle += angularVelocity * time;
             shape.Rotate(angle);
 
+            // RigidBody'nin pozisyonunu shape'in pozisyonuyla güncelle
             position = shape.Transform.Position;
-            angle = Vector3.Zero;
+
+            // Kuvvet ve tork birikimcilerini sıfırla
+            forceAccumulator = Vector3.Zero;
+            torqueAccumulator = Vector3.Zero;
+
+            // Kuvvet birikimcisini sıfırla
             force = Vector3.Zero;
         }
+
+
+
         public void AddForce(Vector3 amount) => force += amount;
         public void AddForceAtPoint(Vector3 atPoint, Vector3 force)
         {
             Vector3 direction = atPoint - position;
             forceAccumulator += force;
             torqueAccumulator += Vector3.Cross(direction, force);
-            Console.WriteLine(torqueAccumulator);
+            //Console.WriteLine(torqueAccumulator);
         }
         public void Move(Vector3 moveVector) => shape.Translate(moveVector);
         public void Rotate(Vector3 rotateVector) => shape.Rotate(rotateVector);

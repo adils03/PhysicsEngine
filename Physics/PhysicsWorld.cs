@@ -174,8 +174,8 @@ namespace PhysicsEngine
 
             float e = MathF.Min(bodyA.restitution, bodyB.restitution);
 
-            float dampingFactor = 0.8f;
-            e *= dampingFactor;
+            //float dampingFactor = 0.8f;
+            //e *= dampingFactor;
 
             float j = -(1 + e) * Vector3.Dot(relativeVelocity, normal);
             j /= bodyA.invMass + bodyB.invMass;

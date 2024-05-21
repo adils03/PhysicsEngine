@@ -46,7 +46,7 @@ namespace PhysicsEngine
         protected Vector3[] Normals;
         protected Color4 Color = Color4.Bisque;// eğer sadece renk olan bir şekilse
         private Dictionary<int, Vector3> anchorPoints = new Dictionary<int, Vector3>();
-        public RigidBody rigidbody;
+        
 
         private  ShaderProgram lampShader;
         private  ShaderProgram lightingShader;
@@ -319,12 +319,16 @@ namespace PhysicsEngine
 
         public int CreateAnchor(Vector3 localAnchorPos)
         {
-            anchorPoints[anchorPoints.Count] = rigidbody.position + localAnchorPos;
+            anchorPoints[anchorPoints.Count] = Transform.Position + localAnchorPos;
             int id = anchorPoints.Count - 1;
             Console.WriteLine("Created anchor with id [" + id + "]");
             return id;
         }
 
+        public void SetAnchorPos(Vector3 Point, int id)
+        {
+            anchorPoints[id] = Point;
+        }
 
         public Vector3 GetAnchorPos(int id)
         {
