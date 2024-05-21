@@ -17,10 +17,12 @@ namespace PhysicsEngine
 
         private List<Joint> joints = new List<Joint>();
         Platform platform;
+        Sphere sphere;
 
         PhysicsWorld world;
         
-        
+
+
         public PlayGround3(NativeWindowSettings settings) : base(settings)
         {
             platform = new Platform(new Vector3(0, 0, 0));
@@ -41,8 +43,8 @@ namespace PhysicsEngine
             
             //RigidBody.CreateCubeBody(1, 1, 1, new Vector3(0, 10, 4), 1, false, .8f, Color4.AliceBlue, out RigidBody cube);
 
-            int anchorCircleId = platform.CreateAnchor(new Vector3(50, 25, 0));
-            RigidBody.CreateCubeBody(platform, true, 1, out RigidBody obstacle2);
+            int anchorCircleId = sphere.CreateAnchor(new Vector3(50, 25, 0));
+            RigidBody.CreateSphereBody(.5f, new Vector3(0.1f, 1, 0), 1, false, 1f, Color4.Red, out RigidBody obstacle2);
             world.AddBody(obstacle2);
 
 

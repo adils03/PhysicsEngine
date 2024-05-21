@@ -46,7 +46,7 @@ namespace PhysicsEngine
         protected Vector3[] Normals;
         protected Color4 Color = Color4.Bisque;// eğer sadece renk olan bir şekilse
         private Dictionary<int, Vector3> anchorPoints = new Dictionary<int, Vector3>();
-        public readonly RigidBody rigidbody;
+        public RigidBody rigidbody;
 
         private  ShaderProgram lampShader;
         private  ShaderProgram lightingShader;
@@ -344,7 +344,7 @@ namespace PhysicsEngine
 
         public void DebugCorners()
         {
-            for (int i = 0; i < Corners.Length; i++)
+            for (int i= 0; i < Corners.Length; i++)
             {
                 Console.WriteLine(Corners[i]);
             }
