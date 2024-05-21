@@ -16,10 +16,7 @@ namespace PhysicsEngine
                 WindowBorder = WindowBorder.Fixed,
                 StartVisible = false,
             };
-
-
-            Console.WriteLine("sea");
-            using PlayGround2 game = new(settings);
+            using PlayGround3 game = new(settings);
             game.Run();
 
         }

@@ -34,6 +34,8 @@ namespace PhysicsEngine
         public Vector3 position;
         public Vector3 linearVelocity;
         private Vector3 angle;
+        private Vector3 torqueAccumulator;
+        private Vector3 forceAccumulator;
         public Vector3 angularVelocity;
         private Vector3 force;
 
@@ -49,6 +51,7 @@ namespace PhysicsEngine
         public readonly float width;
         public readonly float height;
         public readonly float depth;
+       
         public readonly ShapeType shapeType;
         public readonly Shape shape;
 
@@ -69,6 +72,9 @@ namespace PhysicsEngine
             this.height = height;
             this.depth = depth;
             this.shapeType = shapeType;
+            this.torqueAccumulator = Vector3.Zero;
+            this.forceAccumulator = Vector3.Zero;
+
 
             this.inertia = CalculateRotationalInertia();
             if (!isStatic)
@@ -157,6 +163,13 @@ namespace PhysicsEngine
             force = Vector3.Zero;
         }
         public void AddForce(Vector3 amount) => force += amount;
+        public void AddForceAtPoint(Vector3 atPoint, Vector3 force)
+        {
+            Vector3 direction = atPoint - position;
+            forceAccumulator += force;
+            torqueAccumulator += Vector3.Cross(direction, force);
+            Console.WriteLine(torqueAccumulator);
+        }
         public void Move(Vector3 moveVector) => shape.Translate(moveVector);
         public void Rotate(Vector3 rotateVector) => shape.Rotate(rotateVector);
         public void MoveTo(Vector3 target)
@@ -192,5 +205,6 @@ namespace PhysicsEngine
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, 0, width, height, depth, ShapeType.Cube, Color4.AliceBlue);
         }
+
     }
 }

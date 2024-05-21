@@ -16,7 +16,7 @@ namespace PhysicsEngine
             {
                 if (shapeTypeB is ShapeType.Cube)
                 {
-                    result = Collisions.IntersectCubes((Cube)bodyA.shape, (Cube)bodyB.shape, 0.01f, out normal, out depth);
+                    result = Collisions.IntersectCubes((Cube)bodyA.shape, (Cube)bodyB.shape, 0f, out normal, out depth);
                     return result;
                 }
                 else if (shapeTypeB is ShapeType.Sphere)
