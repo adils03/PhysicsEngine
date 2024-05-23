@@ -177,8 +177,8 @@ namespace PhysicsEngine
 
             Rotate(angle);
 
-            //linearVelocity *= 0.99999999f;
-            //angularVelocity *= damping;
+            //linearVelocity *= 0.99f;
+            angularVelocity *= damping;
 
             position = shape.Transform.Position;
             angle = Vector3.Zero;

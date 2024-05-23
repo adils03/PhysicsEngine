@@ -155,7 +155,7 @@ namespace PhysicsEngine
 
                     Collisions.FindContactPoints(rigidBodyA, rigidBodyB, out Vector3 contact1, out Vector3 contact2, out Vector3 contact3, out Vector3 contact4, out int contactCount);
                     CollisionInfo collisionInfo = new CollisionInfo(rigidBodyA, rigidBodyB, normal, depth, contact1, contact2, contact3, contact4, contactCount);
-                    ResolveCollisionRotation(in collisionInfo);
+                    ResolveCollisionRotationAndFriction(in collisionInfo);
                 }
             }
         }

@@ -94,9 +94,8 @@ namespace PhysicsEngine
 
 
         }
-
         private static void FindContactPointsCubes(Vector3[] verticesA, Vector3[] verticesB,
-            out Vector3 contact1, out Vector3 contact2, out Vector3 contact3, out Vector3 contact4, out int contactCount)
+     out Vector3 contact1, out Vector3 contact2, out Vector3 contact3, out Vector3 contact4, out int contactCount)
         {
             contact1 = Vector3.Zero;
             contact2 = Vector3.Zero;
@@ -107,87 +106,98 @@ namespace PhysicsEngine
             Face[] facesA = GetCubeFaces(verticesA);
             Face[] facesB = GetCubeFaces(verticesB);
 
-            float minDistance = float.MaxValue;
+            List<Vector3> contactPoints = new List<Vector3>();
 
             for (int i = 0; i < verticesB.Length; i++)
             {
                 Face closestFaceA = FindClosestFace(facesA, verticesB[i]);
-                Vector3 closestPoint = FindClosestPointOnFace(closestFaceA, verticesB[i], out float distance);
+                Vector3 closestPointA = FindClosestPointOnFace(closestFaceA, verticesB[i], out float distanceA);
 
-                if (NearlyEqual(distance, minDistance))
+                Face closestFaceBToPoint = FindClosestFace(facesB, closestPointA);
+                Vector3 closestPointB = FindClosestPointOnFace(closestFaceBToPoint, closestPointA, out float distanceB);
+
+                if (NearlyEqual(Vector3.Distance(closestPointA, closestPointB), 0))
                 {
-                    if (!NearlyEqual(closestPoint, contact1) &&
-                        !NearlyEqual(closestPoint, contact2) &&
-                        !NearlyEqual(closestPoint, contact3) &&
-                        !NearlyEqual(closestPoint, contact4))
+                    if (!NearlyEqual(closestPointA, contact1) &&
+                        !NearlyEqual(closestPointA, contact2) &&
+                        !NearlyEqual(closestPointA, contact3) &&
+                        !NearlyEqual(closestPointA, contact4))
                     {
-                        if (contactCount == 1)
-                            contact2 = closestPoint;
-                        else if (contactCount == 2)
-                            contact3 = closestPoint;
-                        else if (contactCount == 3)
-                            contact4 = closestPoint;
+                        if(contactCount == 3)
+                        {
+                            contact4 = closestPointA;
+                        }else if(contactCount == 2)
+                        {
+                            contact3 = closestPointA;
+                        }else if( contactCount == 1)
+                        {
+                            contact2 = closestPointA;
+                        }
+                        else
+                        {
+                            contact1 = closestPointA;
+                        }
+                        contactCount++;
 
-                        if (contactCount < 4)
-                            contactCount++;
+                        contactPoints.Add(closestPointA);
                     }
                 }
-                else if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    contact1 = closestPoint;
-                    contact2 = default;
-                    contact3 = default;
-                    contact4 = default;
-                    contactCount = 1;
-                }
-
             }
+
             for (int i = 0; i < verticesA.Length; i++)
             {
                 Face closestFaceB = FindClosestFace(facesB, verticesA[i]);
-                Vector3 closestPoint = FindClosestPointOnFace(closestFaceB, verticesA[i], out float distance);
+                Vector3 closestPointB = FindClosestPointOnFace(closestFaceB, verticesA[i], out float distanceB);
 
-                if (NearlyEqual(distance, minDistance))
+                Face closestFaceAToPoint = FindClosestFace(facesA, closestPointB);
+                Vector3 closestPointA = FindClosestPointOnFace(closestFaceAToPoint, closestPointB, out float distanceA);
+
+                if (NearlyEqual(Vector3.Distance(closestPointA, closestPointB), 0))
                 {
-                    if (!NearlyEqual(closestPoint, contact1) &&
-                        !NearlyEqual(closestPoint, contact2) &&
-                        !NearlyEqual(closestPoint, contact3) &&
-                        !NearlyEqual(closestPoint, contact4))
+                    if (!NearlyEqual(closestPointA, contact1) &&
+                        !NearlyEqual(closestPointA, contact2) &&
+                        !NearlyEqual(closestPointA, contact3) &&
+                        !NearlyEqual(closestPointA, contact4))
                     {
-                        if (contactCount == 1)
-                            contact2 = closestPoint;
+                        if (contactCount == 3)
+                        {
+                            contact4 = closestPointB;
+                        }
                         else if (contactCount == 2)
-                            contact3 = closestPoint;
-                        else if (contactCount == 3)
-                            contact4 = closestPoint;
+                        {
+                            contact3 = closestPointB;
+                        }
+                        else if (contactCount == 1)
+                        {
+                            contact2 = closestPointB;
+                        }
+                        else
+                        {
+                            contact1 = closestPointB;
+                        }
+                        contactCount++;
 
-                        if (contactCount < 4)
-                            contactCount++;
+                        contactPoints.Add(closestPointB);
                     }
                 }
-                else if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    contact1 = closestPoint;
-                    contact2 = default;
-                    contact3 = default;
-                    contact4 = default;
-                    contactCount = 1;
-                }
-
             }
 
+            contactCount = Math.Min(contactPoints.Count, 4);
+            if (contactCount > 0) contact1 = contactPoints[0];
+            if (contactCount > 1) contact2 = contactPoints[1];
+            if (contactCount > 2) contact3 = contactPoints[2];
+            if (contactCount > 3) contact4 = contactPoints[3];
         }
+
         private static void FindContactPointSphereCube(Vector3 sphereCenter, Vector3[] vertices, out Vector3 contact1)
         {
             Face[] faces = GetCubeFaces(vertices);
             Face closestFace = FindClosestFace(faces, sphereCenter);
 
-            contact1 = FindClosestPointOnFace(closestFace, sphereCenter,out float distance);
+            contact1 = FindClosestPointOnFace(closestFace, sphereCenter, out float distance);
         }
 
-        private static Vector3 FindClosestPointOnFace(Face face, Vector3 point,out float distance)
+        private static Vector3 FindClosestPointOnFace(Face face, Vector3 point, out float distance)
         {
             Edge edge1 = face.edge1;
             Edge edge2 = face.edge2;
@@ -201,7 +211,7 @@ namespace PhysicsEngine
 
             Vector3 delta = contact - sameCorner;
             contact += delta;
-            distance = Vector3.DistanceSquared(point,contact);
+            distance = Vector3.DistanceSquared(point, contact);
             return contact;
         }
 
@@ -442,13 +452,13 @@ namespace PhysicsEngine
             axises.Add(Vector3.Cross(faceNormalA3, faceNormalB3));
             foreach (Vector3 axis in axises)
             {
-                if(axis == Vector3.Zero)
+                if (axis == Vector3.Zero)
                 {
                     return true;
                 }
                 ProjectVertices(verticesA, axis.Normalized(), out float minA, out float maxA);
                 ProjectVertices(verticesB, axis.Normalized(), out float minB, out float maxB);
-                if (minA  >= maxB || minB  >= maxA)
+                if (minA >= maxB || minB >= maxA)
                 {
                     return false;
                 }
@@ -525,7 +535,7 @@ namespace PhysicsEngine
         }
         private static bool NearlyEqual(float a, float b)
         {
-            return MathF.Abs(a - b) < 0.0005f;
+            return MathF.Abs(a - b) < 0.05f;
         }
     }
 
