@@ -51,6 +51,7 @@ namespace PhysicsEngine
         public readonly float width;
         public readonly float height;
         public readonly float depth;
+        public readonly bool isKinematic;
        
         public readonly ShapeType shapeType;
         public readonly Shape shape;
@@ -74,6 +75,7 @@ namespace PhysicsEngine
             this.shapeType = shapeType;
             this.torqueAccumulator = Vector3.Zero;
             this.forceAccumulator = Vector3.Zero;
+            this.isKinematic = false;
 
 
             this.inertia = CalculateRotationalInertia();
@@ -86,7 +88,9 @@ namespace PhysicsEngine
             {
                 invMass = 0f;
                 invInertia = 0f;
+                isKinematic = true;
             }
+            
 
             shape = shapeType switch
             {
@@ -157,20 +161,21 @@ namespace PhysicsEngine
             // Lineer hızı güncelle
             linearVelocity += gravity * time;
             linearVelocity += acceleration * time;
-
+            linearVelocity *= 0.9999f;
             // Konumu güncelle
             shape.Translate(linearVelocity * time);
 
-            // Açısal hızlanmayı hesapla
+            //// Açısal hızlanmayı hesapla
             Vector3 angularAcceleration = torqueAccumulator / inertia;
 
-            // Açısal hızı güncelle
+            //// Açısal hızı güncelle
             angularVelocity += angularAcceleration * time;
+            //angularVelocity *= 0.9f;
 
             // Açıyı güncelle
             angle += angularVelocity * time;
             shape.Rotate(angle);
-
+           
             // RigidBody'nin pozisyonunu shape'in pozisyonuyla güncelle
             position = shape.Transform.Position;
 
@@ -206,6 +211,7 @@ namespace PhysicsEngine
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, radius, 0, 0, 0, ShapeType.Sphere, color);
         }
+
 
         public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Color4 color, out RigidBody rigidBody)
         {

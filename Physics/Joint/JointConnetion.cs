@@ -1,4 +1,7 @@
-﻿
+﻿using OpenTK.Mathematics;
+using OpenTK.Graphics.OpenGL4;
+using PhysicsEngine.Shapes;
+
 namespace PhysicsEngine
 {
     public class JointConnection
@@ -15,5 +18,7 @@ namespace PhysicsEngine
             this.rigidBodyB = rigidBodyB;
             this.anchorBId = anchorBId;
         }
+
+        
     }
 }

@@ -38,5 +38,6 @@ namespace PhysicsEngine
 
         public abstract void UpdateConnectionA();
         public abstract void UpdateConnectionB();
+
     }
 }

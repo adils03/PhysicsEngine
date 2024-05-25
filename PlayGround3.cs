@@ -56,7 +56,7 @@ namespace PhysicsEngine
             float dx = 0;
             float dy = 0;
             float dz = 0;
-            float forceMagnitude = 5;
+            float forceMagnitude = 50;
             if (input.IsKeyDown(Keys.Up))
             {
                 dz--;
@@ -97,34 +97,32 @@ namespace PhysicsEngine
         {
             base.OnLoad();
 
-            RigidBody.CreateCubeBody(15, 2, 15, new Vector3(0,0, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle3);
-            world.AddBody(obstacle3);
+            //RigidBody.CreateCubeBody(15, 2, 15, new Vector3(0, 0, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle3);
+            //world.AddBody(obstacle3);
 
 
-            RigidBody.CreateCubeBody(15, 10, 2, new Vector3(0, 2, 6.5f), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle4);
-            world.AddBody(obstacle4);
+            //RigidBody.CreateCubeBody(15, 10, 2, new Vector3(0, 2, 6.5f), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle4);
+            //world.AddBody(obstacle4);
 
-            RigidBody.CreateCubeBody(15, 10, 2, new Vector3(0, 2, -6.5f), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle5);
-            world.AddBody(obstacle5);
+            //RigidBody.CreateCubeBody(15, 10, 2, new Vector3(0, 2, -6.5f), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle5);
+            //world.AddBody(obstacle5);
 
-            RigidBody.CreateCubeBody(2, 10, 15, new Vector3(-6.5f, 2, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle6);
-            world.AddBody(obstacle6);
+            //RigidBody.CreateCubeBody(2, 10, 15, new Vector3(-6.5f, 2, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle6);
+            //world.AddBody(obstacle6);
 
-            RigidBody.CreateCubeBody(2, 10, 15, new Vector3(6.5f, 2, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle7);
-            world.AddBody(obstacle7);
-
+            //RigidBody.CreateCubeBody(2, 10, 15, new Vector3(6.5f, 2, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle7);
+            //world.AddBody(obstacle7);
 
             RigidBody.CreateSphereBody(.5f, new Vector3(0.1f, 2, 0), 1, false, 1f, Color4.Red, out obstacle2);
             int anchorCircleId = obstacle2.shape.CreateAnchor(new Vector3(0, 0, 0));
             world.AddBody(obstacle2);
 
-
-            RigidBody.CreateSphereBody(.5f, new Vector3(0.5f, 2, 0), 1, false, 1f, Color4.Yellow, out obstacle1);
-            int anchorRectId = obstacle1.shape.CreateAnchor(new Vector3(0, 0,0));
+            RigidBody.CreateSphereBody(.5f, new Vector3(0.3f, 2, 0), 1, true, 1f, Color4.Yellow, out obstacle1);
+            int anchorRectId = obstacle1.shape.CreateAnchor(new Vector3(0, 0, 0));
             world.AddBody(obstacle1);
 
             JointConnection jointConnection = new JointConnection(obstacle1, anchorRectId,obstacle2, anchorCircleId);
-            joints.Add(new ForceJoint(jointConnection, 5));
+            joints.Add(new SpringJoint(jointConnection, 0.1f, 5));
 
 
 
