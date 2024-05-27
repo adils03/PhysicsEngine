@@ -1,4 +1,5 @@
-﻿using OpenTK.Mathematics;
+﻿using Microsoft.Win32;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -22,36 +23,22 @@ namespace PhysicsEngine
 
         StringCubes StringCubes;
 
-        Shape a;
-
-
         public PlayGround2(NativeWindowSettings settings) : base(settings)
         {
 
             StringCubes = new StringCubes(new Vector3(0, 10.0f, 0));
-            cameraManager.SetCameraSpeed(2);
+
+
+            cameraManager.SetCameraSpeed(3);
             SetLamps();
         }
-        protected override void OnUpdateFrame(FrameEventArgs e)
-        {            
-            base.OnUpdateFrame(e);
-        }
-
-        protected override void OnLoad()
-        {
-            base.OnLoad();
-
-          
-
-           
-
-        }
+       
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
 
 
-            StringCubes.UpdateVelocity(KeyboardState,e);
+            StringCubes.UpdateVelocity(KeyboardState, e);
             StringCubes.Update((float)e.Time);
 
             RenderLamps();
@@ -76,6 +63,23 @@ namespace PhysicsEngine
             }
         }
 
+        protected override void OnUpdateFrame(FrameEventArgs e)
+        {
+           
+
+          
+
+            base.OnUpdateFrame(e);
+        }
+        protected override void OnLoad()
+        {
+            base.OnLoad();
+
+
+
+
+
+        }
 
     }
 }

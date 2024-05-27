@@ -15,15 +15,50 @@ namespace PhysicsEngine
     }
     public class Transform
     {
-        public Vector3 Position;
-        public Quaternion Rotation;
-        public Vector3 Scale;
+        private Vector3 position;
+        private Quaternion rotation;
+        private Vector3 scale;
+
+        public bool PositionChanged { get; private set; }
+        public bool ScaleChanged { get; private set; }
+
+        public Vector3 Position
+        {
+            get => position;
+            set
+            {
+                position = value;
+                PositionChanged = true;
+            }
+        }
+
+        public Quaternion Rotation
+        {
+            get => rotation;
+            set => rotation = value;
+        }
+
+        public Vector3 Scale
+        {
+            get => scale;
+            set
+            {
+                scale = value;
+                ScaleChanged = true;
+            }
+        }
 
         public Transform()
         {
-            Position = Vector3.Zero;
-            Rotation = Quaternion.Identity;
-            Scale = Vector3.One;
+            position = Vector3.Zero;
+            rotation = Quaternion.Identity;
+            scale = Vector3.One;
+        }
+
+        public void ResetChangeFlags()
+        {
+            PositionChanged = false;
+            ScaleChanged = false;
         }
     }
     public enum ShapeShaderType
@@ -54,7 +89,7 @@ namespace PhysicsEngine
 
         Camera cam;
 
-        protected int[] Indices;
+        public int[] Indices;
 
         protected Texture diffuseMap;
         protected Texture specularMap;
@@ -97,6 +132,21 @@ namespace PhysicsEngine
         protected virtual void LoadTexture(string diffuseMapPath, string specularMapPath)
         {
         }
+
+        public void UpdateVertices(Vector3[] newPositions)
+        {
+            for (int i = 0; i < Vertices.Length && i < newPositions.Length; i++)
+            {
+                Vertices[i].Position = newPositions[i];
+            }
+
+            // Vertex buffer güncellemesi
+            if (vertexBuffer != null)
+            {
+                vertexBuffer.SetData(Vertices, Vertices.Length);
+            }
+        }
+
         protected void Render(PointLight[] pointLights, Camera cam, ShaderProgram shader, bool lighting = false)
         {
             shader.Use();
@@ -104,7 +154,12 @@ namespace PhysicsEngine
                 diffuseMap.Use(TextureUnit.Texture0);           
                 specularMap.Use(TextureUnit.Texture1);
 
-            vertexBuffer.SetData(Vertices, Vertices.Length);//translate için
+            // Update vertex buffer data only if position or scale has changed
+            if (Transform.PositionChanged || Transform.ScaleChanged)
+            {
+                vertexBuffer.SetData(Vertices, Vertices.Length);
+                Transform.ResetChangeFlags();
+            }
             GL.BindVertexArray(vertexArray.VertexArrayHandle);
             GL.BindBuffer(BufferTarget.ElementArrayBuffer, indexBuffer.IndexBufferHandle);
 
