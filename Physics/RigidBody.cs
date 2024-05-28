@@ -165,12 +165,12 @@ namespace PhysicsEngine
             // Konumu güncelle
             shape.Translate(linearVelocity * time);
 
-            //// Açısal hızlanmayı hesapla
+            // Açısal hızlanmayı hesapla
             Vector3 angularAcceleration = torqueAccumulator / inertia;
 
-            //// Açısal hızı güncelle
+            // Açısal hızı güncelle
             angularVelocity += angularAcceleration * time;
-            //angularVelocity *= 0.9f;
+            angularVelocity *= 0.8f;
 
             // Açıyı güncelle
             angle += angularVelocity * time;

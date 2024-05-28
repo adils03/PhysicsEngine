@@ -19,6 +19,15 @@ namespace PhysicsEngine
             this.anchorBId = anchorBId;
         }
 
-        
+        public Vector3 GetAnchorAPos()
+        {
+            return rigidBodyA.shape.GetAnchorPos(anchorAId);
+        }
+
+        public Vector3 GetAnchorBPos()
+        {
+            return rigidBodyB.shape.GetAnchorPos(anchorBId);
+        }
+
     }
 }

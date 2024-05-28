@@ -20,7 +20,7 @@ namespace PhysicsEngine
 
         public override void UpdateConnectionA()
         {
-            if (rigiA.isKinematic) return;
+            if (rigiA.isStatic) return;
 
             Vector3 anchorAPos = GetAnchorAPos();
             Vector3 anchorBPos = GetAnchorBPos();
@@ -29,7 +29,7 @@ namespace PhysicsEngine
             float distance = direction.Length;
             float restDistance = distance - restLength;
 
-            float forceHalving = rigiB.isKinematic ? 1 : 0.5f;
+            float forceHalving = rigiB.isStatic ? 1 : 0.5f;
             float forceMagnitude = restDistance * restLength * springConstant * forceHalving;
 
             direction.Normalize();
@@ -41,7 +41,7 @@ namespace PhysicsEngine
 
         public override void UpdateConnectionB()
         {
-            if (rigiB.isKinematic) return;
+            if (rigiB.isStatic) return;
 
             Vector3 anchorAPos = GetAnchorAPos();
             Vector3 anchorBPos = GetAnchorBPos();
@@ -50,7 +50,7 @@ namespace PhysicsEngine
             float distance = direction.Length;
             float restDistance = distance - restLength;
 
-            float forceHalving = rigiA.isKinematic ? 1f : 0.5f;
+            float forceHalving = rigiA.isStatic ? 1f : 0.5f;
             float forceMagnitude = restDistance * restLength * springConstant * forceHalving;
 
             direction.Normalize();
