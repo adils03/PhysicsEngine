@@ -23,6 +23,7 @@ namespace PhysicsEngine
         private List<CollisionInfo> collisionInfos;
         private List<(int, int)> contactPairs;
 
+
         private Vector3 gravity;
         private Octree octree;
 
@@ -154,7 +155,7 @@ namespace PhysicsEngine
 
                     Collisions.FindContactPoints(rigidBodyA, rigidBodyB, out Vector3 contact1, out Vector3 contact2, out Vector3 contact3, out Vector3 contact4, out int contactCount);
                     CollisionInfo collisionInfo = new CollisionInfo(rigidBodyA, rigidBodyB, normal, depth, contact1, contact2, contact3, contact4, contactCount);
-                    ResolveCollision(in collisionInfo);
+                    ResolveCollisionRotationAndFriction(in collisionInfo);
                 }
             }
         }
@@ -196,6 +197,10 @@ namespace PhysicsEngine
         {
             RigidBody rigidBodyA = collisionInfo.bodyA;
             RigidBody rigidBodyB = collisionInfo.bodyB;
+
+            float invInertiaA = 0;
+            float invInertiaB = 0;
+
             Vector3 normal = collisionInfo.normal;
             Vector3 contact1 = collisionInfo.contact1;
             Vector3 contact2 = collisionInfo.contact2;
@@ -205,7 +210,7 @@ namespace PhysicsEngine
 
             float e = MathF.Min(rigidBodyA.restitution, rigidBodyB.restitution);
 
-            Vector3[] contactList = new Vector3[] { contact1, contact2, contact3, contact4 };
+            Vector3[] contactList = [contact1, contact2, contact3, contact4];
             Vector3[] impulseList = new Vector3[4];
             Vector3[] rAPList = new Vector3[4];
             Vector3[] rBPList = new Vector3[4];
@@ -230,10 +235,14 @@ namespace PhysicsEngine
                     continue;
                 }
 
+                invInertiaA = 1 / ((rigidBodyA.inertiaX + rigidBodyA.inertiaY + rigidBodyA.inertiaZ) / 3);
+                invInertiaB = 1 / ((rigidBodyB.inertiaX + rigidBodyB.inertiaY + rigidBodyB.inertiaZ) / 3);
+
+
                 float j = -(1 + e) * vAB;
                 float firstPart = Vector3.Dot(normal, normal) * (1 / rigidBodyA.mass + 1 / rigidBodyB.mass);
-                Vector3 IrAPxNxrAP = Vector3.Cross(rigidBodyA.invInertia * Vector3.Cross(rAP, normal), rAP);
-                Vector3 IrBPxNxrBP = Vector3.Cross(rigidBodyB.invInertia * Vector3.Cross(rBP, normal), rBP);
+                Vector3 IrAPxNxrAP = Vector3.Cross(invInertiaA * Vector3.Cross(rAP, normal), rAP);
+                Vector3 IrBPxNxrBP = Vector3.Cross(invInertiaB * Vector3.Cross(rBP, normal), rBP);
                 float secondPart = Vector3.Dot(IrAPxNxrAP + IrBPxNxrBP, normal);
 
                 j /= firstPart + secondPart;
@@ -250,12 +259,170 @@ namespace PhysicsEngine
                 Vector3 rA = rAPList[i];
                 Vector3 rB = rBPList[i];
 
-                rigidBodyA.linearVelocity += -impulse * rigidBodyA.invMass;
-                rigidBodyA.angularVelocity += -Vector3.Cross(rA, impulse) * rigidBodyA.invInertia;
-                rigidBodyB.linearVelocity += impulse * rigidBodyB.invMass;
-                rigidBodyB.angularVelocity += Vector3.Cross(rB, impulse) * rigidBodyB.invInertia;
+                if (!rigidBodyA.isStatic)
+                {
+                    rigidBodyA.linearVelocity += -impulse * rigidBodyA.invMass;
+                    rigidBodyA.angularVelocity += -Vector3.Cross(rA, impulse) * invInertiaA;
+                }
+                if (!rigidBodyB.isStatic)
+                {
+                    rigidBodyB.linearVelocity += impulse * rigidBodyB.invMass;
+                    rigidBodyB.angularVelocity += Vector3.Cross(rB, impulse) * invInertiaB;
+                }
             }
         }
+        private void ResolveCollisionRotationAndFriction(in CollisionInfo collisionInfo)
+        {
+            RigidBody rigidBodyA = collisionInfo.bodyA;
+            RigidBody rigidBodyB = collisionInfo.bodyB;
+
+            float invInertiaA = 0;
+            float invInertiaB = 0;
+
+            Vector3 normal = collisionInfo.normal;
+            Vector3 contact1 = collisionInfo.contact1;
+            Vector3 contact2 = collisionInfo.contact2;
+            Vector3 contact3 = collisionInfo.contact3;
+            Vector3 contact4 = collisionInfo.contact4;
+            int contactCount = collisionInfo.contactCount;
+
+            float e = MathF.Min(rigidBodyA.restitution, rigidBodyB.restitution);
+
+            float sf = (rigidBodyA.staticFriction + rigidBodyB.staticFriction) * 0.5f;
+            float df = (rigidBodyA.dynamicFriction + rigidBodyB.dynamicFriction) * 0.5f;
+
+            Vector3[] contactList = new Vector3[] { contact1, contact2, contact3, contact4 };
+            Vector3[] impulseList = new Vector3[4];
+            Vector3[] rAPList = new Vector3[4];
+            Vector3[] rBPList = new Vector3[4];
+            Vector3[] frictionImpulseList = new Vector3[4];
+            float[] jList = new float[4];
+            for (int i = 0; i < contactCount; i++)
+            {
+                Vector3 rAP = contactList[i] - rigidBodyA.position;
+                Vector3 rBP = contactList[i] - rigidBodyB.position;
+
+                rAPList[i] = rAP;
+                rBPList[i] = rBP;
+
+                Vector3 angularVelocityA = rAP * rigidBodyA.angularVelocity;
+                Vector3 angularVelocityB = rBP * rigidBodyB.angularVelocity;
+
+                Vector3 relativeVelocity = (rigidBodyB.linearVelocity + angularVelocityB) - (rigidBodyA.linearVelocity + angularVelocityA);
+
+                float vAB = Vector3.Dot(relativeVelocity, normal);
+
+                if (vAB > 0)
+                {
+                    continue;
+                }
+
+                invInertiaA = 1 / ((rigidBodyA.inertiaX + rigidBodyA.inertiaY + rigidBodyA.inertiaZ) / 3);
+                invInertiaB = 1 / ((rigidBodyB.inertiaX + rigidBodyB.inertiaY + rigidBodyB.inertiaZ) / 3);
+
+                float j = -(1 + e) * vAB;
+                float firstPart = Vector3.Dot(normal, normal) * (1 / rigidBodyA.mass + 1 / rigidBodyB.mass);
+                Vector3 IrAPxNxrAP = Vector3.Cross(invInertiaA * Vector3.Cross(rAP, normal), rAP);
+                Vector3 IrBPxNxrBP = Vector3.Cross(invInertiaB * Vector3.Cross(rBP, normal), rBP);
+                float secondPart = Vector3.Dot(IrAPxNxrAP + IrBPxNxrBP, normal);
+
+                j /= firstPart + secondPart;
+                j /= contactCount;
+
+                jList[i] = j;
+
+                Vector3 impulse = j * normal;
+                impulseList[i] = impulse;
+            }
+
+            for (int i = 0; i < contactCount; i++)
+            {
+                Vector3 impulse = impulseList[i];
+
+                Vector3 rA = rAPList[i];
+                Vector3 rB = rBPList[i];
+
+                if (!rigidBodyA.isStatic)
+                {
+                    rigidBodyA.linearVelocity += -impulse * rigidBodyA.invMass;
+                    rigidBodyA.angularVelocity += -Vector3.Cross(rA, impulse) * invInertiaA;
+                }
+                if (!rigidBodyB.isStatic)
+                {
+                    rigidBodyB.linearVelocity += impulse * rigidBodyB.invMass;
+                    rigidBodyB.angularVelocity += Vector3.Cross(rB, impulse) * invInertiaB;
+                }
+            }
+
+            for (int i = 0; i < contactCount; i++)
+            {
+                Vector3 rAP = contactList[i] - rigidBodyA.position;
+                Vector3 rBP = contactList[i] - rigidBodyB.position;
+
+                rAPList[i] = rAP;
+                rBPList[i] = rBP;
+
+                Vector3 angularVelocityA = rAP * rigidBodyA.angularVelocity;
+                Vector3 angularVelocityB = rBP * rigidBodyB.angularVelocity;
+
+                Vector3 relativeVelocity = (rigidBodyB.linearVelocity + angularVelocityB) - (rigidBodyA.linearVelocity + angularVelocityA);
+
+                Vector3 tangent = relativeVelocity - Vector3.Dot(relativeVelocity, normal) * normal;
+
+                if (Collisions.NearlyEqual(tangent, Vector3.Zero))
+                {
+                    continue;
+                }
+                else
+                {
+                    tangent.Normalize();
+                }
+
+                invInertiaA = 1 / ((rigidBodyA.inertiaX + rigidBodyA.inertiaY + rigidBodyA.inertiaZ) / 3);
+                invInertiaB = 1 / ((rigidBodyB.inertiaX + rigidBodyB.inertiaY + rigidBodyB.inertiaZ) / 3);
+
+                float jT = -Vector3.Dot(relativeVelocity, tangent);
+                float firstPartT = Vector3.Dot(tangent, tangent) * (1 / rigidBodyA.mass + 1 / rigidBodyB.mass);
+                Vector3 IrAPxNxrAPT = Vector3.Cross(invInertiaA * Vector3.Cross(rAP, tangent), rAP);
+                Vector3 IrBPxNxrBPT = Vector3.Cross(invInertiaB * Vector3.Cross(rBP, tangent), rBP);
+                float secondPartT = Vector3.Dot(IrAPxNxrAPT + IrBPxNxrBPT, tangent);
+
+                jT /= firstPartT + secondPartT;
+                jT /= contactCount;
+                Vector3 impulseFriction;
+                float j = jList[i];
+                if (MathF.Abs(jT) <= j * sf)
+                {
+                    impulseFriction = jT * tangent;
+                }
+                else
+                {
+                    impulseFriction = -j * tangent * df;
+                }
+
+                frictionImpulseList[i] = impulseFriction;
+            }
+
+            for (int i = 0; i < contactCount; i++)
+            {
+                Vector3 impulseFriction = frictionImpulseList[i];
+
+                Vector3 rA = rAPList[i];
+                Vector3 rB = rBPList[i];
+
+                if (!rigidBodyA.isStatic)
+                {
+                    rigidBodyA.linearVelocity += -impulseFriction * rigidBodyA.invMass;
+                    rigidBodyA.angularVelocity += -Vector3.Cross(rA, impulseFriction) * invInertiaA;
+                }
+                if (!rigidBodyB.isStatic)
+                {
+                    rigidBodyB.linearVelocity += impulseFriction * rigidBodyB.invMass;
+                    rigidBodyB.angularVelocity += Vector3.Cross(rB, impulseFriction) * invInertiaB;
+                }
+            }
+        }
+
 
     }
     public readonly struct CollisionInfo

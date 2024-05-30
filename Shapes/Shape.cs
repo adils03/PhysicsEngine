@@ -79,7 +79,7 @@ namespace PhysicsEngine
         public VertexPositionNormalTexture[] Vertices;
         protected Vector3[] Corners;
         protected Vector3[] Normals;
-        protected Color4 Color = Color4.Bisque;// eğer sadece renk olan bir şekilse
+        public Color4 Color = Color4.Bisque;// eğer sadece renk olan bir şekilse
 
 
         private  ShaderProgram lampShader;

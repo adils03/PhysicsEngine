@@ -22,21 +22,38 @@ namespace PhysicsEngine
         };
 
         StringCubes StringCubes;
+        PhysicsWorld world;
 
         public PlayGround2(NativeWindowSettings settings) : base(settings)
         {
+           
 
-            StringCubes = new StringCubes(new Vector3(0, 10.0f, 0));
+          
 
 
             cameraManager.SetCameraSpeed(3);
             SetLamps();
         }
-       
+
+        protected override void OnLoad()
+        {
+            base.OnLoad();
+            world = new PhysicsWorld(PhysicsWorld.WORLD_GRAVITY, new Vector3(100, 100, 100));
+            StringCubes = new StringCubes(new Vector3(0, 15.0f, 0));
+
+            world.AddBody(StringCubes.Particles.Last().body);
+
+            Platform platform = new Platform(new Vector3(0, 0, 0));
+            RigidBody.CreateCubeBody(platform, true, 0.7f, out RigidBody platformRigidBody);
+            world.AddBody(platformRigidBody);
+
+
+        }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
 
+            world.Update((float)e.Time, 1);
 
             StringCubes.UpdateVelocity(KeyboardState, e);
             StringCubes.Update((float)e.Time);
@@ -71,15 +88,7 @@ namespace PhysicsEngine
 
             base.OnUpdateFrame(e);
         }
-        protected override void OnLoad()
-        {
-            base.OnLoad();
-
-
-
-
-
-        }
+       
 
     }
 }
