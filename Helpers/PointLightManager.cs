@@ -85,7 +85,7 @@ namespace PhysicsEngine
                 constant = 1f,
                 linear = 0.09f,
                 quadratic = 0.032f,
-                ambient = new Vector3(0.08f), // Ortam (ambient) bileşeni
+                ambient = new Vector3(3f), // Ortam (ambient) bileşeni
                 diffuse = new Vector3(1.5f), // Yayılma (diffuse) bileşeni
                 specular = new Vector3(3f) // Parlaklık (specular) bileşeni
             };

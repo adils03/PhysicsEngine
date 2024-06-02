@@ -9,6 +9,13 @@ namespace PhysicsEngine
     public class PlayGround : Game
     {
 
+        Vector3[] _pointLightPositions =
+        {
+             new Vector3( -5.0f,  15.0f,  -15.0f),
+             new Vector3( -5.0f,  15.0f,  15.0f),
+             new Vector3( 5.0f,   15.0f,  15.0f),
+             new Vector3( 5.0f,   15.0f,  -15.0f)
+        };
         List<Shape> ShapeList;
 
         Cube cube;
@@ -32,6 +39,7 @@ namespace PhysicsEngine
             sphere2 = new Sphere(Vector3.Zero, 0.3f, 10, Color4.White);
             sphere3 = new Sphere(Vector3.Zero, 0.3f, 10, Color4.White);
             sphere4 = new Sphere(Vector3.Zero, 0.3f, 10, Color4.White);
+            SetLamps();
         }
 
         protected override void OnLoad()
@@ -174,6 +182,25 @@ namespace PhysicsEngine
             }
 
         }
+
+        public void SetLamps()
+        {
+            PointLightManager.GetInstance().SetPointLightPosition(this._pointLightPositions);
+            pointLights = PointLightManager.GetInstance().GetPointLights();
+
+            for (int i = 0; i < pointLights.Length; i++)
+            {
+                lampObjects[i] = new Sphere(pointLights[i].position, 0.2f, 15, Color4.White);
+            }
+        }
+        public void RenderLamps()
+        {
+            for (int i = 0; i < pointLights.Length; i++)
+            {
+
+                lampObjects[i].RenderObject(camera, objectShader);
+            }
+        }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             
@@ -192,7 +219,9 @@ namespace PhysicsEngine
             //sphere2.RenderBasic();
             //sphere3.RenderBasic();
             //sphere4.RenderBasic();
+            RenderLamps();
             SwapBuffers();
+            
         }
 
 
