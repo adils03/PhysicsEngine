@@ -4,6 +4,12 @@ using OpenTK.Mathematics;
 
 namespace PhysicsEngine
 {
+    public enum ResolveType
+    {
+        Basic,
+        Rotation,
+        RotationAndFriction
+    }
     public class PhysicsWorld
     {
         // Sabitler
@@ -26,14 +32,17 @@ namespace PhysicsEngine
         private Vector3 gravity;
         private Octree octree;
 
-        public PhysicsWorld(float gravityAmount, Vector3 worldSize)
+        private readonly ResolveType ResolveType;
+
+        public PhysicsWorld(float gravityAmount, Vector3 worldSize, ResolveType resolveType = ResolveType.Basic)
         {
             gravity = new Vector3(0, -gravityAmount, 0);
             shapes = new List<Shape>();
             rigidBodies = new List<RigidBody>();
             collisionInfos = new List<CollisionInfo>();
             contactPairs = new List<(int, int)>();
-            octree = new Octree(worldSize, 1); // Octree'yi başlatırken dünya boyutunu ve minimum düğüm boyutunu belirtin.
+            octree = new Octree(worldSize, 1);
+            this.ResolveType = resolveType;
         }
 
         public void AddBody(RigidBody rigidBody)
@@ -81,7 +90,6 @@ namespace PhysicsEngine
         public void Update(float time, int iterations)
         {
             iterations = MathHelper.Clamp(iterations, MIN_ITERATIONS, MAX_ITERATIONS);
-
             for (int iteration = 0; iteration < iterations; iteration++)
             {
                 collisionInfos.Clear();
@@ -138,6 +146,7 @@ namespace PhysicsEngine
 
                 if (Collisions.Collide(rigidBodyA, rigidBodyB, out Vector3 normal, out float depth))
                 {
+
                     if (rigidBodyA.isStatic)
                     {
                         rigidBodyB.Move(normal * depth);
@@ -151,10 +160,22 @@ namespace PhysicsEngine
                         rigidBodyA.Move(-normal * depth / 2f);
                         rigidBodyB.Move(normal * depth / 2f);
                     }
-
                     Collisions.FindContactPoints(rigidBodyA, rigidBodyB, out Vector3 contact1, out Vector3 contact2, out Vector3 contact3, out Vector3 contact4, out int contactCount);
                     CollisionInfo collisionInfo = new CollisionInfo(rigidBodyA, rigidBodyB, normal, depth, contact1, contact2, contact3, contact4, contactCount);
-                    ResolveCollision(in collisionInfo);
+
+                    switch (ResolveType)
+                    {
+                        case ResolveType.Basic:
+                            ResolveCollision(in collisionInfo);
+                            break;
+                        case ResolveType.Rotation:
+                            ResolveCollisionRotation(in collisionInfo);
+                            break;
+                        case ResolveType.RotationAndFriction:
+                            ResolveCollisionRotationFriction(in collisionInfo);
+                            break;
+                    }
+
                 }
             }
         }
@@ -173,10 +194,6 @@ namespace PhysicsEngine
             }
 
             float e = MathF.Min(bodyA.restitution, bodyB.restitution);
-
-            //float dampingFactor = 0.8f;
-            //e *= dampingFactor;
-
             float j = -(1 + e) * Vector3.Dot(relativeVelocity, normal);
             j /= bodyA.invMass + bodyB.invMass;
 
@@ -194,95 +211,193 @@ namespace PhysicsEngine
 
         private void ResolveCollisionRotation(in CollisionInfo collisionInfo)
         {
-            RigidBody rigidBodyA = collisionInfo.bodyA;
-            RigidBody rigidBodyB = collisionInfo.bodyB;
+            RigidBody bodyA = collisionInfo.bodyA;
+            RigidBody bodyB = collisionInfo.bodyB;
             Vector3 normal = collisionInfo.normal;
-            Vector3 contact1 = collisionInfo.contact1;
-            Vector3 contact2 = collisionInfo.contact2;
-            Vector3 contact3 = collisionInfo.contact3;
-            Vector3 contact4 = collisionInfo.contact4;
-            int contactCount = collisionInfo.contactCount;
 
-            float e = MathF.Min(rigidBodyA.restitution, rigidBodyB.restitution);
-
-            Vector3[] contactList = new Vector3[] { contact1, contact2, contact3, contact4 };
-            Vector3[] impulseList = new Vector3[4];
-            Vector3[] rAPList = new Vector3[4];
-            Vector3[] rBPList = new Vector3[4];
-
-            for (int i = 0; i < contactCount; i++)
+            if (collisionInfo.contactCount == 0)
             {
-                Vector3 rAP = contactList[i] - rigidBodyA.position;
-                Vector3 rBP = contactList[i] - rigidBodyB.position;
-
-                rAPList[i] = rAP;
-                rBPList[i] = rBP;
-
-                Vector3 angularVelocityA = rAP * rigidBodyA.angularVelocity;
-                Vector3 angularVelocityB = rBP * rigidBodyB.angularVelocity;
-
-                Vector3 relativeVelocity = (rigidBodyB.linearVelocity + angularVelocityB) - (rigidBodyA.linearVelocity + angularVelocityA);
-
-                float vAB = Vector3.Dot(relativeVelocity, normal);
-
-                if (vAB > 0)
-                {
-                    continue;
-                }
-
-                float j = -(1 + e) * vAB;
-                float firstPart = Vector3.Dot(normal, normal) * (1 / rigidBodyA.mass + 1 / rigidBodyB.mass);
-                Vector3 IrAPxNxrAP = Vector3.Cross(rigidBodyA.invInertia * Vector3.Cross(rAP, normal), rAP);
-                Vector3 IrBPxNxrBP = Vector3.Cross(rigidBodyB.invInertia * Vector3.Cross(rBP, normal), rBP);
-                float secondPart = Vector3.Dot(IrAPxNxrAP + IrBPxNxrBP, normal);
-
-                j /= firstPart + secondPart;
-                j /= contactCount;
-
-                Vector3 impulse = j * normal;
-                impulseList[i] = impulse;
+                return;
             }
 
-            for (int i = 0; i < contactCount; i++)
+            // Average the contact points
+            Vector3 contactPoint = (collisionInfo.contact1 + collisionInfo.contact2 + collisionInfo.contact3 + collisionInfo.contact4) / collisionInfo.contactCount;
+            // Calculate the relative positions of the contact point
+            Vector3 ra = contactPoint - bodyA.position;
+            Vector3 rb = contactPoint - bodyB.position;
+
+            // Calculate the relative velocity at the contact point
+            Vector3 relativeVelocity = (bodyB.linearVelocity + bodyB.angularVelocity ) -
+                                       (bodyA.linearVelocity + bodyA.angularVelocity );
+
+            // Early exit if the velocities are separating
+            if (Vector3.Dot(relativeVelocity, normal) > 0)
             {
-                Vector3 impulse = impulseList[i];
+                return;
+            }
 
-                Vector3 rA = rAPList[i];
-                Vector3 rB = rBPList[i];
+            // Calculate the angular impulse
+            float e = MathF.Min(bodyA.restitution, bodyB.restitution);
 
-                rigidBodyA.linearVelocity += -impulse * rigidBodyA.invMass;
-                rigidBodyA.angularVelocity += -Vector3.Cross(rA, impulse) * rigidBodyA.invInertia;
-                rigidBodyB.linearVelocity += impulse * rigidBodyB.invMass;
-                rigidBodyB.angularVelocity += Vector3.Cross(rB, impulse) * rigidBodyB.invInertia;
+            // Calculate the cross products
+            Vector3 raCrossN = Vector3.Cross(ra, normal);
+            Vector3 rbCrossN = Vector3.Cross(rb, normal);
+
+            Matrix3 invInertiaA = bodyA.invInertiaTensor;
+            Matrix3 invInertiaB = bodyB.invInertiaTensor;
+
+
+            float denominator = Vector3.Dot(normal, normal) * (bodyA.invMass + bodyB.invMass) +
+                               Vector3.Dot(Vector3.Cross((invInertiaA * raCrossN), ra) + Vector3.Cross((invInertiaB * rbCrossN), rb), normal);
+
+            // Calculate the impulse scalar
+            float j = -(1 + e) * Vector3.Dot(relativeVelocity, normal) / denominator;
+
+            // Compute the linear and angular impulses
+            Vector3 impulse = j * normal;
+            Console.WriteLine(impulse);
+            // Apply the impulses
+            if (!bodyA.isStatic)
+            {
+                bodyA.linearVelocity -= impulse * bodyA.invMass;
+                bodyA.angularVelocity -= invInertiaA *Vector3.Cross(ra , impulse) ;
+            }
+
+            if (!bodyB.isStatic)
+            {
+                bodyB.linearVelocity += impulse * bodyB.invMass;
+                bodyB.angularVelocity += invInertiaB *Vector3.Cross(rb, impulse) ;
             }
         }
 
-    }
-    public readonly struct CollisionInfo
-    {
-        public readonly RigidBody bodyA;
-        public readonly RigidBody bodyB;
-        public readonly Vector3 normal;
-        public readonly float depth;
-        public readonly Vector3 contact1;
-        public readonly Vector3 contact2;
-        public readonly Vector3 contact3;
-        public readonly Vector3 contact4;
-        public readonly int contactCount;
-
-        public CollisionInfo(RigidBody bodyA, RigidBody bodyB, Vector3 normal, float depth,
-            Vector3 contact1, Vector3 contact2, Vector3 contact3, Vector3 contact4, int contactCount)
+        private void ResolveCollisionRotationFriction(in CollisionInfo collisionInfo)
         {
-            this.bodyA = bodyA;
-            this.bodyB = bodyB;
-            this.normal = normal;
-            this.depth = depth;
-            this.contact1 = contact1;
-            this.contact2 = contact2;
-            this.contact3 = contact3;
-            this.contact4 = contact4;
-            this.contactCount = contactCount;
-        }
+            RigidBody bodyA = collisionInfo.bodyA;
+            RigidBody bodyB = collisionInfo.bodyB;
+            Vector3 normal = collisionInfo.normal;
 
+            if (collisionInfo.contactCount == 0)
+            {
+                return;
+            }
+
+            // Average the contact points
+            Vector3 contactPoint = (collisionInfo.contact1 + collisionInfo.contact2 + collisionInfo.contact3 + collisionInfo.contact4) / collisionInfo.contactCount;
+            // Calculate the relative positions of the contact point
+            Vector3 ra = contactPoint - bodyA.position;
+            Vector3 rb = contactPoint - bodyB.position;
+
+            // Calculate the relative velocity at the contact point
+            Vector3 relativeVelocity = (bodyB.linearVelocity + Vector3.Cross(bodyB.angularVelocity, rb)) -
+                                       (bodyA.linearVelocity + Vector3.Cross(bodyA.angularVelocity, ra));
+
+            // Early exit if the velocities are separating
+            if (Vector3.Dot(relativeVelocity, normal) > 0)
+            {
+                return;
+            }
+
+            // Calculate the angular impulse
+            float e = MathF.Min(bodyA.restitution, bodyB.restitution);
+
+            // Calculate the cross products
+            Vector3 raCrossN = Vector3.Cross(ra, normal);
+            Vector3 rbCrossN = Vector3.Cross(rb, normal);
+
+            // Calculate the inverse inertia scalars
+            Matrix3 invInertiaA = bodyA.invInertiaTensor;
+            Matrix3 invInertiaB = bodyB.invInertiaTensor;
+
+            float denominator = Vector3.Dot(normal, normal) * (bodyA.invMass + bodyB.invMass) +
+                                Vector3.Dot(Vector3.Cross((invInertiaA * raCrossN), ra) + Vector3.Cross((invInertiaB * rbCrossN), rb), normal);
+
+            // Calculate the impulse scalar
+            float j = -(1 + e) * Vector3.Dot(relativeVelocity, normal) / denominator;
+
+            // Compute the linear and angular impulses
+            Vector3 impulse = j * normal;
+
+            // Apply the impulses
+            if (!bodyA.isStatic)
+            {
+                bodyA.linearVelocity -= impulse * bodyA.invMass;
+                bodyA.angularVelocity -= invInertiaA * Vector3.Cross(ra, impulse);
+            }
+
+            if (!bodyB.isStatic)
+            {
+                bodyB.linearVelocity += impulse * bodyB.invMass;
+                bodyB.angularVelocity += invInertiaB * Vector3.Cross(rb, impulse);
+            }
+
+            // Calculate friction impulse
+            Vector3 tangent = relativeVelocity - (normal * Vector3.Dot(relativeVelocity, normal));
+            if (tangent.LengthSquared > 0.0001f)
+            {
+                tangent = Vector3.Normalize(tangent);
+            }
+
+            // Calculate friction impulse scalar
+            float jt = -Vector3.Dot(relativeVelocity, tangent) / denominator;
+
+            // Statik ve dinamik sürtünme katsayılarını belirle
+            float staticFriction = MathF.Sqrt(bodyA.staticFriction * bodyB.staticFriction);
+            float dynamicFriction = MathF.Sqrt(bodyA.dynamicFriction * bodyB.dynamicFriction);
+
+            Vector3 frictionImpulse;
+            if (MathF.Abs(jt) < j * staticFriction)
+            {
+                // Statik sürtünme durumu
+                frictionImpulse = jt * tangent;
+            }
+            else
+            {
+                // Dinamik sürtünme durumu
+                frictionImpulse = -j * dynamicFriction * tangent;
+            }
+
+            // Apply friction impulses
+            if (!bodyA.isStatic)
+            {
+                bodyA.linearVelocity -= frictionImpulse * bodyA.invMass;
+                bodyA.angularVelocity -= invInertiaA * Vector3.Cross(ra, frictionImpulse);
+            }
+
+            if (!bodyB.isStatic)
+            {
+                bodyB.linearVelocity += frictionImpulse * bodyB.invMass;
+                bodyB.angularVelocity += invInertiaB * Vector3.Cross(rb, frictionImpulse);
+            }
+
+        }
     }
-}
+
+        public readonly struct CollisionInfo
+        {
+            public readonly RigidBody bodyA;
+            public readonly RigidBody bodyB;
+            public readonly Vector3 normal;
+            public readonly float depth;
+            public readonly Vector3 contact1;
+            public readonly Vector3 contact2;
+            public readonly Vector3 contact3;
+            public readonly Vector3 contact4;
+            public readonly int contactCount;
+
+            public CollisionInfo(RigidBody bodyA, RigidBody bodyB, Vector3 normal, float depth,
+                Vector3 contact1, Vector3 contact2, Vector3 contact3, Vector3 contact4, int contactCount)
+            {
+                this.bodyA = bodyA;
+                this.bodyB = bodyB;
+                this.normal = normal;
+                this.depth = depth;
+                this.contact1 = contact1;
+                this.contact2 = contact2;
+                this.contact3 = contact3;
+                this.contact4 = contact4;
+                this.contactCount = contactCount;
+            }
+
+        }
+    }
+

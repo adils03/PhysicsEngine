@@ -1,5 +1,5 @@
 ﻿using OpenTK.Mathematics;
-using System;
+
 
 namespace PhysicsEngine
 {
@@ -36,16 +36,19 @@ namespace PhysicsEngine
         private Vector3 angle;
         private Vector3 torqueAccumulator;
         private Vector3 forceAccumulator;
+        public Vector3 angle;
         public Vector3 angularVelocity;
         private Vector3 force;
+
+        public readonly float damping;
 
         public readonly float density;
         public readonly float mass;
         public readonly float invMass;
         public readonly float restitution;
         public readonly float area;
-        public readonly float inertia;
-        public readonly float invInertia;
+        public readonly float staticFriction;
+        public readonly float dynamicFriction;
         public readonly bool isStatic;
         public readonly float radius;
         public readonly float width;
@@ -56,6 +59,9 @@ namespace PhysicsEngine
         public readonly ShapeType shapeType;
         public readonly Shape shape;
 
+        public readonly Matrix3 inertiaTensor;
+        public readonly Matrix3 invInertiaTensor;
+        
         public RigidBody(Vector3 position, float density, float mass, float restitution, float area, bool isStatic, float radius, float width, float height, float depth, ShapeType shapeType, Color4 color)
         {
             this.position = position;
@@ -79,16 +85,22 @@ namespace PhysicsEngine
 
 
             this.inertia = CalculateRotationalInertia();
+            this.staticFriction = 0.5f;
+            this.dynamicFriction = 0.3f;
+            this.damping = 0.99f;
             if (!isStatic)
             {
                 invMass = 1.0f / mass;
-                invInertia = 1.0f / inertia;
+                invInertiaTensor = GetInverseInertiaTensor();
+                inertiaTensor = GetInertiaTensor();
             }
             else
             {
                 invMass = 0f;
                 invInertia = 0f;
                 isKinematic = true;
+                inertiaTensor = Matrix3.Zero;
+                invInertiaTensor = Matrix3.Zero;
             }
             
 
@@ -99,15 +111,83 @@ namespace PhysicsEngine
                 _ => throw new ArgumentException("Unsupported shape type")
             };
         }
+        public void Update(float time, Vector3 gravity, int iterations)
+        {
+            shape.RenderBasic();
 
-        private float CalculateRotationalInertia()
+            if (isStatic) return;
+
+            time /= iterations;
+            Vector3 acceleration = force/mass;
+            linearVelocity += acceleration * time;
+
+            linearVelocity += gravity * time;
+
+            Move(linearVelocity * time);
+            angularVelocity *= 30;
+            angle += angularVelocity * time;
+
+            if (angle.Length < 0.01f) // Eşik değerine göre açının sıfırlanması
+            {
+                angle *= 0.3f;
+                angularVelocity = Vector3.Zero; // Açı sıfırlandığında, açısal hızı da sıfırla
+            }
+            Rotate(angle);
+
+
+            //linearVelocity *= damping;
+            angle *= damping;
+
+            position = shape.Transform.Position;
+            angularVelocity = Vector3.Zero;
+            force = Vector3.Zero;
+        }
+
+        public float CalculateRotationalInertiaX()
         {
             return shapeType switch
             {
                 ShapeType.Sphere => (2f / 5) * mass * radius * radius,
-                ShapeType.Cube => (1f / 12) * mass * (height * height + width * width),
+                ShapeType.Cube => (1f / 12) * mass * (height * height + depth * depth),
                 _ => 0
             };
+        }
+        public float CalculateRotationalInertiaZ()
+        {
+            return shapeType switch
+            {
+                ShapeType.Sphere => (2f / 5) * mass * radius * radius,
+                ShapeType.Cube => (1f / 12) * mass * (width * width + depth * depth),
+                _ => 0
+            };
+        }
+        public float CalculateRotationalInertiaY()
+        {
+            return shapeType switch
+            {
+                ShapeType.Sphere => (2f / 5) * mass * radius * radius,
+                ShapeType.Cube => (1f / 12) * mass * (width * width + height * height),
+                _ => 0
+            };
+        }
+
+
+        public Matrix3 GetInertiaTensor()
+        {
+            Matrix3 matrix3D = new Matrix3(
+                new Vector3(CalculateRotationalInertiaX(),0,0), 
+                new Vector3(0,CalculateRotationalInertiaY(),0), 
+                new Vector3(0,0,CalculateRotationalInertiaZ()));
+            return matrix3D;
+        }
+
+        public Matrix3 GetInverseInertiaTensor()
+        {
+            Matrix3 matrix3D = new Matrix3(
+                new Vector3(1/CalculateRotationalInertiaX(), 0, 0),
+                new Vector3(0, 1/CalculateRotationalInertiaY(), 0),
+                new Vector3(0, 0,1/ CalculateRotationalInertiaZ()));
+            return matrix3D;
         }
 
         public AABB GetAABB()
@@ -144,7 +224,6 @@ namespace PhysicsEngine
 
             return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         }
-
         public void Update(float time, Vector3 gravity, int iterations)
         {
             shape.RenderBasic();
@@ -186,9 +265,6 @@ namespace PhysicsEngine
             // Kuvvet birikimcisini sıfırla
             force = Vector3.Zero;
         }
-
-
-
         public void AddForce(Vector3 amount) => force += amount;
         public void AddForceAtPoint(Vector3 atPoint, Vector3 force)
         {

@@ -250,36 +250,34 @@ namespace PhysicsEngine
         }
         public void Rotate(Vector3 rotateVector)
         {
-            // Derece cinsinden açıları radyan cinsine dönüştürme
+            // Convert angles from degrees to radians
             float radiansX = MathHelper.DegreesToRadians(rotateVector.X);
             float radiansY = MathHelper.DegreesToRadians(rotateVector.Y);
             float radiansZ = MathHelper.DegreesToRadians(rotateVector.Z);
-
-            // Radyan cinsinden açıları kullanarak Quaternion oluşturma
+            // Create a quaternion from the Euler angles
             Quaternion quaternion = Quaternion.FromEulerAngles(radiansX, radiansY, radiansZ);
 
+            // Update the rotation of the transform
             Transform.Rotation = quaternion;
 
+            // Rotate each vertex position and normal
+            Vector3 transformPosition = Transform.Position;
             for (int i = 0; i < Vertices.Length; i++)
             {
-                // Vertex pozisyonunu radyan cinsinden döndürme
-                Vector3 newPosition = Vector3.Transform(Vertices[i].Position - Transform.Position, quaternion) + Transform.Position;
-                Vertices[i].Position = newPosition;
-
-
-
-                Vector3 newNormal = Vector3.Transform(Vertices[i].Normal, quaternion);
-                Vertices[i].Normal = newNormal;
-
+                Vertices[i].Position = Vector3.Transform(Vertices[i].Position - transformPosition, quaternion) + transformPosition;
+                Vertices[i].Normal = Vector3.Transform(Vertices[i].Normal, quaternion);
             }
-            if (Corners is not null)
+
+            // Rotate each corner if Corners array is not null
+            if (Corners != null)
+            {
                 for (int i = 0; i < Corners.Length; i++)
                 {
-                    Vector3 newPosition = Vector3.Transform(Corners[i] - Transform.Position, quaternion) + Transform.Position;
-                    Corners[i] = newPosition;
+                    Corners[i] = Vector3.Transform(Corners[i] - transformPosition, quaternion) + transformPosition;
                 }
-
+            }
         }
+        
         public void Teleport(Vector3 point)
         {
             Vector3 offset = point - Transform.Position;
