@@ -33,6 +33,9 @@ namespace PhysicsEngine
     {
         public Vector3 position;
         public Vector3 linearVelocity;
+        private Vector3 angle;
+        private Vector3 torqueAccumulator;
+        private Vector3 forceAccumulator;
         public Vector3 angle;
         public Vector3 angularVelocity;
         private Vector3 force;
@@ -51,6 +54,8 @@ namespace PhysicsEngine
         public readonly float width;
         public readonly float height;
         public readonly float depth;
+        public readonly bool isKinematic;
+       
         public readonly ShapeType shapeType;
         public readonly Shape shape;
 
@@ -74,6 +79,12 @@ namespace PhysicsEngine
             this.height = height;
             this.depth = depth;
             this.shapeType = shapeType;
+            this.torqueAccumulator = Vector3.Zero;
+            this.forceAccumulator = Vector3.Zero;
+          
+
+
+            this.inertia = CalculateRotationalInertia();
             this.staticFriction = 0.5f;
             this.dynamicFriction = 0.3f;
             this.damping = 0.99f;
@@ -86,9 +97,12 @@ namespace PhysicsEngine
             else
             {
                 invMass = 0f;
+                invInertia = 0f;
+                isKinematic = true;
                 inertiaTensor = Matrix3.Zero;
                 invInertiaTensor = Matrix3.Zero;
             }
+            
 
             shape = shapeType switch
             {
@@ -210,8 +224,55 @@ namespace PhysicsEngine
 
             return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         }
+        public void Update(float time, Vector3 gravity, int iterations)
+        {
+            shape.RenderBasic();
 
+            if (isStatic) return;
+
+            // Zaman dilimini iterasyon sayısına böl
+            time /= iterations;
+
+            // Kuvvet birikimcisini kullanarak lineer hızlanmayı hesapla
+            Vector3 totalForce = force + forceAccumulator; // Eklenen kuvvet birikimcisini kullan
+            Vector3 acceleration = totalForce / mass;
+
+            // Lineer hızı güncelle
+            linearVelocity += gravity * time;
+            linearVelocity += acceleration * time;
+            linearVelocity *= 0.9999f;
+            // Konumu güncelle
+            shape.Translate(linearVelocity * time);
+
+            // Açısal hızlanmayı hesapla
+            Vector3 angularAcceleration = torqueAccumulator / inertia;
+
+            // Açısal hızı güncelle
+            angularVelocity += angularAcceleration * time;
+            angularVelocity *= 0.8f;
+
+            // Açıyı güncelle
+            angle += angularVelocity * time;
+            shape.Rotate(angle);
+           
+            // RigidBody'nin pozisyonunu shape'in pozisyonuyla güncelle
+            position = shape.Transform.Position;
+
+            // Kuvvet ve tork birikimcilerini sıfırla
+            forceAccumulator = Vector3.Zero;
+            torqueAccumulator = Vector3.Zero;
+
+            // Kuvvet birikimcisini sıfırla
+            force = Vector3.Zero;
+        }
         public void AddForce(Vector3 amount) => force += amount;
+        public void AddForceAtPoint(Vector3 atPoint, Vector3 force)
+        {
+            Vector3 direction = atPoint - position;
+            forceAccumulator += force;
+            torqueAccumulator += Vector3.Cross(direction, force);
+            //Console.WriteLine(torqueAccumulator);
+        }
         public void Move(Vector3 moveVector) => shape.Translate(moveVector);
         public void Rotate(Vector3 rotateVector) => shape.Rotate(rotateVector);
         public void MoveTo(Vector3 target)
@@ -226,6 +287,7 @@ namespace PhysicsEngine
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, radius, 0, 0, 0, ShapeType.Sphere, color);
         }
+
 
         public static void CreateCubeBody(float width, float height, float depth, Vector3 position, float density, bool isStatic, float restitution, Color4 color, out RigidBody rigidBody)
         {
@@ -247,5 +309,6 @@ namespace PhysicsEngine
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, 0, width, height, depth, ShapeType.Cube, Color4.AliceBlue);
         }
+
     }
 }

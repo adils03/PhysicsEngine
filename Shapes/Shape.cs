@@ -45,7 +45,8 @@ namespace PhysicsEngine
         protected Vector3[] Corners;
         protected Vector3[] Normals;
         protected Color4 Color = Color4.Bisque;// eğer sadece renk olan bir şekilse
-
+        private Dictionary<int, Vector3> anchorPoints = new Dictionary<int, Vector3>();
+        
 
         private  ShaderProgram lampShader;
         private  ShaderProgram lightingShader;
@@ -314,10 +315,38 @@ namespace PhysicsEngine
             Transform.Scale *= scaleVector;
         }
 
+        public int CreateAnchor(Vector3 localAnchorPos)
+        {
+            anchorPoints[anchorPoints.Count] = Transform.Position + localAnchorPos;
+            int id = anchorPoints.Count - 1;
+            Console.WriteLine("Created anchor with id [" + id + "]");
+            return id;
+        }
+
+        public void SetAnchorPos(Vector3 Point, int id)
+        {
+            anchorPoints[id] = Point;
+        }
+
+        public Vector3 GetAnchorPos(int id)
+        {
+            return anchorPoints[id];
+        }
+
+        public bool RemoveAnchor(int anchorIndex)
+        {
+            bool removed = anchorPoints.Remove(anchorIndex);
+            if (!removed)
+            {
+                Console.WriteLine("Anchor with id [" + anchorIndex + "] not found");
+            }
+            return removed;
+        }
+
 
         public void DebugCorners()
         {
-            for (int i = 0; i < Corners.Length; i++)
+            for (int i= 0; i < Corners.Length; i++)
             {
                 Console.WriteLine(Corners[i]);
             }
