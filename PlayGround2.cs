@@ -52,7 +52,7 @@ namespace PhysicsEngine
 
 
             platform.RenderBasic();
-            world.Update((float)e.Time, 1);
+            world.Update((float)e.Time,1);
 
 
             RenderLamps();

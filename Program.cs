@@ -17,9 +17,7 @@ namespace PhysicsEngine
                 StartVisible = false,
             };
 
-
-            Console.WriteLine("sea");
-            using PlayGround2 game = new(settings);
+            using PlayGround game = new(settings);
             game.Run();
 
         }
