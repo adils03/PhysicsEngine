@@ -75,7 +75,7 @@ namespace PhysicsEngine
             this.shapeType = shapeType;
             this.torqueAccumulator = Vector3.Zero;
             this.forceAccumulator = Vector3.Zero;
-            this.isKinematic = false;
+          
 
 
             this.inertia = CalculateRotationalInertia();

@@ -18,7 +18,7 @@ namespace PhysicsEngine
         private List<Joint> joints = new List<Joint>();
 
         Sphere sphere;
-        Sphere sphere2;
+        Cube cube;
 
         PhysicsWorld world;
         RigidBody obstacle1;
@@ -27,8 +27,8 @@ namespace PhysicsEngine
 
         public PlayGround3(NativeWindowSettings settings) : base(settings)
         {
-            sphere = new Sphere(new Vector3(0, 0, 0), 0.3f, 5, Color4.AliceBlue);
-            sphere2 = new Sphere(new Vector3(0, 0, 0), 0.3f, 5, Color4.AliceBlue);
+            sphere = new Sphere(new Vector3(0, 0, 0), 0.5f, 5, Color4.AliceBlue);
+            cube = new Cube(new Vector3(0, 0, 0));
             world = new PhysicsWorld(9.81f, new Vector3(50, 50, 50));
 
             cameraManager.SetCameraSpeed(5);
@@ -43,7 +43,7 @@ namespace PhysicsEngine
             obstacle3.shape.SetAnchorPos(obstacle3.position, 0);
 
             sphere.Teleport(obstacle1.shape.GetAnchorPos(0));
-            sphere2.Teleport(obstacle2.shape.GetAnchorPos(0));
+            cube.Teleport(obstacle2.shape.GetAnchorPos(0));
 
             var input = KeyboardState;
             float dx = 0;
@@ -89,7 +89,8 @@ namespace PhysicsEngine
         protected override void OnLoad()
         {
             base.OnLoad();
-
+            cube.Rotate(new Vector3(45, 45, 45));
+            
             //RigidBody.CreateCubeBody(15, 2, 15, new Vector3(0, 0, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle8);
             //world.AddBody(obstacle8);
 
@@ -109,7 +110,7 @@ namespace PhysicsEngine
             int anchorCircleId = obstacle1.shape.CreateAnchor(new Vector3(0, 0, 0));
             world.AddBody(obstacle1);
 
-            RigidBody.CreateCubeBody(1, 1, 1, new Vector3(2, 19, 0), 1, false, 0.5f, Color4.Yellow, out obstacle2);
+            RigidBody.CreateCubeBody(1.5f, 1.5f, 1.5f, new Vector3(1, 20, 0), 1, true, 0.5f, Color4.Yellow, out obstacle2);
             int anchorCircleId2 = obstacle2.shape.CreateAnchor(new Vector3(0, 0, 0));
             world.AddBody(obstacle2);
 
@@ -129,7 +130,7 @@ namespace PhysicsEngine
 
             world.Update((float)e.Time, 1);
             sphere.RenderBasic();
-            sphere2.RenderBasic();
+            cube.RenderBasic();
 
             RenderLamps();
             SwapBuffers();
