@@ -36,7 +36,6 @@ namespace PhysicsEngine
         private Vector3 angle;
         private Vector3 torqueAccumulator;
         private Vector3 forceAccumulator;
-        public Vector3 angle;
         public Vector3 angularVelocity;
         private Vector3 force;
 
@@ -81,10 +80,7 @@ namespace PhysicsEngine
             this.shapeType = shapeType;
             this.torqueAccumulator = Vector3.Zero;
             this.forceAccumulator = Vector3.Zero;
-          
 
-
-            this.inertia = CalculateRotationalInertia();
             this.staticFriction = 0.5f;
             this.dynamicFriction = 0.3f;
             this.damping = 0.99f;
@@ -97,7 +93,6 @@ namespace PhysicsEngine
             else
             {
                 invMass = 0f;
-                invInertia = 0f;
                 isKinematic = true;
                 inertiaTensor = Matrix3.Zero;
                 invInertiaTensor = Matrix3.Zero;
@@ -224,7 +219,7 @@ namespace PhysicsEngine
 
             return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         }
-        public void Update(float time, Vector3 gravity, int iterations)
+        /*public void Update(float time, Vector3 gravity, int iterations)
         {
             shape.RenderBasic();
 
@@ -245,7 +240,7 @@ namespace PhysicsEngine
             shape.Translate(linearVelocity * time);
 
             // Açısal hızlanmayı hesapla
-            Vector3 angularAcceleration = torqueAccumulator / inertia;
+            Vector3 angularAcceleration = torqueAccumulator * invInertiaTensor;
 
             // Açısal hızı güncelle
             angularVelocity += angularAcceleration * time;
@@ -264,7 +259,7 @@ namespace PhysicsEngine
 
             // Kuvvet birikimcisini sıfırla
             force = Vector3.Zero;
-        }
+        }*/
         public void AddForce(Vector3 amount) => force += amount;
         public void AddForceAtPoint(Vector3 atPoint, Vector3 force)
         {
