@@ -21,7 +21,7 @@ namespace PhysicsEngine
             LoadTexture();
             CreateBuffers();
         }
-        public Sphere(ShapeShaderType type,Vector3 position, Color4 color, float radius = 1, int segments = 10)
+        public Sphere(ShapeShaderType type,Vector3 position, Color4 color, float radius = 1f, int segments = 50)
         {
             base.ShaderType = type;
             Transform.Position = position;

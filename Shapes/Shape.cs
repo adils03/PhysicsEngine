@@ -319,7 +319,7 @@ namespace PhysicsEngine
         {
             anchorPoints[anchorPoints.Count] = Transform.Position + localAnchorPos;
             int id = anchorPoints.Count - 1;
-            Console.WriteLine("Created anchor with id [" + id + "]");
+            //Console.WriteLine("Created anchor with id [" + id + "]");
             return id;
         }
 

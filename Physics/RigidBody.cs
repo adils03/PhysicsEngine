@@ -26,7 +26,8 @@ namespace PhysicsEngine
     public enum ShapeType
     {
         Sphere = 0,
-        Cube = 1
+        Cube = 1,
+        Cylinder = 2,
     }
 
     public class RigidBody
@@ -101,42 +102,43 @@ namespace PhysicsEngine
 
             shape = shapeType switch
             {
-                ShapeType.Sphere => new Sphere(ShapeShaderType.ColorLight, position, color, radius),
+                ShapeType.Cylinder => new Cylinder(ShapeShaderType.ColorLight, position, color, radius),
+                ShapeType.Sphere => new Sphere(ShapeShaderType.ColorLight, position, color, radius),             
                 ShapeType.Cube => new Cube(position, ShapeShaderType.Textured, new Vector3(width, height, depth)),
                 _ => throw new ArgumentException("Unsupported shape type")
             };
         }
-        public void Update(float time, Vector3 gravity, int iterations)
-        {
-            shape.RenderBasic();
+        //public void Update(float time, Vector3 gravity, int iterations)
+        //{
+        //    shape.RenderBasic();
 
-            if (isStatic) return;
+        //    if (isStatic) return;
 
-            time /= iterations;
-            Vector3 acceleration = force/mass;
-            linearVelocity += acceleration * time;
+        //    time /= iterations;
+        //    Vector3 acceleration = force/mass;
+        //    linearVelocity += acceleration * time;
 
-            linearVelocity += gravity * time;
+        //    linearVelocity += gravity * time;
 
-            Move(linearVelocity * time);
-            angularVelocity *= 30;
-            angle += angularVelocity * time;
+        //    Move(linearVelocity * time);
+        //    angularVelocity *= 30;
+        //    angle += angularVelocity * time;
 
-            if (angle.Length < 0.01f) // Eşik değerine göre açının sıfırlanması
-            {
-                angle *= 0.3f;
-                angularVelocity = Vector3.Zero; // Açı sıfırlandığında, açısal hızı da sıfırla
-            }
-            Rotate(angle);
+        //    if (angle.Length < 0.01f) // Eşik değerine göre açının sıfırlanması
+        //    {
+        //        angle *= 0.3f;
+        //        angularVelocity = Vector3.Zero; // Açı sıfırlandığında, açısal hızı da sıfırla
+        //    }
+        //    Rotate(angle);
 
 
-            //linearVelocity *= damping;
-            angle *= damping;
+        //    //linearVelocity *= damping;
+        //    angle *= damping;
 
-            position = shape.Transform.Position;
-            angularVelocity = Vector3.Zero;
-            force = Vector3.Zero;
-        }
+        //    position = shape.Transform.Position;
+        //    angularVelocity = Vector3.Zero;
+        //    force = Vector3.Zero;
+        //}
 
         public float CalculateRotationalInertiaX()
         {
@@ -144,6 +146,7 @@ namespace PhysicsEngine
             {
                 ShapeType.Sphere => (2f / 5) * mass * radius * radius,
                 ShapeType.Cube => (1f / 12) * mass * (height * height + depth * depth),
+                ShapeType.Cylinder => (1f / 12) * mass * (3 * radius * radius + height * height),
                 _ => 0
             };
         }
@@ -153,6 +156,7 @@ namespace PhysicsEngine
             {
                 ShapeType.Sphere => (2f / 5) * mass * radius * radius,
                 ShapeType.Cube => (1f / 12) * mass * (width * width + depth * depth),
+                ShapeType.Cylinder => (1f / 2) * mass *  radius * radius,
                 _ => 0
             };
         }
@@ -162,6 +166,7 @@ namespace PhysicsEngine
             {
                 ShapeType.Sphere => (2f / 5) * mass * radius * radius,
                 ShapeType.Cube => (1f / 12) * mass * (width * width + height * height),
+                ShapeType.Cylinder => (1f / 12) * mass * (3 * radius * radius + height * height),
                 _ => 0
             };
         }
@@ -216,10 +221,19 @@ namespace PhysicsEngine
                 maxY = position.Y + radius;
                 maxZ = position.Z + radius;
             }
+            else if (shapeType == ShapeType.Cylinder)
+            {
+                 minX = position.X - radius;
+                 minY = position.Y - radius;
+                 minZ = position.Z - height / 2;
+                 maxX = position.X + radius;
+                 maxY = position.Y + radius;
+                 maxZ = position.Z + height / 2;
+            }
 
             return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         }
-        /*public void Update(float time, Vector3 gravity, int iterations)
+        public void Update(float time, Vector3 gravity, int iterations)
         {
             shape.RenderBasic();
 
@@ -249,7 +263,7 @@ namespace PhysicsEngine
             // Açıyı güncelle
             angle += angularVelocity * time;
             shape.Rotate(angle);
-           
+
             // RigidBody'nin pozisyonunu shape'in pozisyonuyla güncelle
             position = shape.Transform.Position;
 
@@ -259,7 +273,7 @@ namespace PhysicsEngine
 
             // Kuvvet birikimcisini sıfırla
             force = Vector3.Zero;
-        }*/
+        }
         public void AddForce(Vector3 amount) => force += amount;
         public void AddForceAtPoint(Vector3 atPoint, Vector3 force)
         {
@@ -281,6 +295,14 @@ namespace PhysicsEngine
             restitution = MathHelper.Clamp(restitution, 0.0f, 1.0f);
             float mass = area * density;
             rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, radius, 0, 0, 0, ShapeType.Sphere, color);
+        }
+        public static void CreateCylinderBody(float radius, float height, Vector3 position, float density, bool isStatic, float restitution, Color4 color, out RigidBody rigidBody)
+        {
+            float volume = MathF.PI * radius * radius * height;
+            restitution = MathHelper.Clamp(restitution, 0.0f, 1.0f);
+            float mass = volume * density;
+            float area = MathF.PI * radius * radius;
+            rigidBody = new RigidBody(position, density, mass, restitution, area, isStatic, radius, height, 0, 0, ShapeType.Cylinder, color);
         }
 
 

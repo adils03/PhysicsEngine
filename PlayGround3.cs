@@ -24,6 +24,7 @@ namespace PhysicsEngine
         RigidBody obstacle1;
         RigidBody obstacle2;
         RigidBody obstacle3;
+        RigidBody obstacle4;
 
         public PlayGround3(NativeWindowSettings settings) : base(settings)
         {
@@ -39,11 +40,11 @@ namespace PhysicsEngine
             base.OnUpdateFrame(e);
             HandleJoints();
             obstacle1.shape.SetAnchorPos(obstacle1.position, 0);
-            obstacle2.shape.SetAnchorPos(obstacle2.position, 0);
-            obstacle3.shape.SetAnchorPos(obstacle3.position, 0);
+            obstacle4.shape.SetAnchorPos(obstacle4.position, 0);
+            //obstacle3.shape.SetAnchorPos(obstacle3.position, 0);
 
-            sphere.Teleport(obstacle1.shape.GetAnchorPos(0));
-            cube.Teleport(obstacle2.shape.GetAnchorPos(0));
+            //sphere.Teleport(obstacle1.shape.GetAnchorPos(0));
+            //cube.Teleport(obstacle2.shape.GetAnchorPos(0));
 
             var input = KeyboardState;
             float dx = 0;
@@ -82,7 +83,7 @@ namespace PhysicsEngine
             {
                 Vector3 forceDirection = Vector3.Normalize(new Vector3(dx, dy, dz));
                 Vector3 force = forceDirection * forceMagnitude;
-                obstacle3.AddForce(force);
+                obstacle1.AddForce(force);
             }
         }
 
@@ -90,7 +91,7 @@ namespace PhysicsEngine
         {
             base.OnLoad();
             cube.Rotate(new Vector3(45, 45, 45));
-            
+
             //RigidBody.CreateCubeBody(15, 2, 15, new Vector3(0, 0, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle8);
             //world.AddBody(obstacle8);
 
@@ -106,31 +107,42 @@ namespace PhysicsEngine
             //RigidBody.CreateCubeBody(2, 10, 15, new Vector3(6.5f, 2, 0), 1, true, 0.5f, Color4.AliceBlue, out RigidBody obstacle7);
             //world.AddBody(obstacle7);
 
-            RigidBody.CreateCubeBody(1, 1, 1, new Vector3(3, 20, 0), 1, true, 1f, Color4.Blue, out obstacle1);
+
+            ///////////////////////////// burası /////
+
+            RigidBody.CreateSphereBody(0.001f, new Vector3(0, 8f, 0), 1, true, 1, Color4.Yellow, out obstacle3);
+            //int anchorCircleId = obstacle1.shape.CreateAnchor(new Vector3(0, 0, 0));
+            world.AddBody(obstacle3);
+
+            RigidBody.CreateSphereBody(0.5f,new Vector3(0,6,0),1,false,1,Color4.Yellow,out obstacle1);
             int anchorCircleId = obstacle1.shape.CreateAnchor(new Vector3(0, 0, 0));
             world.AddBody(obstacle1);
 
-            RigidBody.CreateCubeBody(1.5f, 1.5f, 1.5f, new Vector3(1, 20, 0), 1, true, 0.5f, Color4.Yellow, out obstacle2);
-            int anchorCircleId2 = obstacle2.shape.CreateAnchor(new Vector3(0, 0, 0));
-            world.AddBody(obstacle2);
+            RigidBody.CreateCylinderBody(5,5, new Vector3(0, 8, 0), 2, true, 2, Color4.DarkCyan, out obstacle4);
+            int anchorCircleId2 = obstacle4.shape.CreateAnchor(new Vector3(0, 0, 0));
+            world.AddBody(obstacle4);
 
-            RigidBody.CreateCubeBody(1, 1, 1, new Vector3(1, 18, 0), 1, false, 0.5f, Color4.Red, out obstacle3);
-            int anchorCircleId3 = obstacle3.shape.CreateAnchor(new Vector3(0, 0, 0));
-            world.AddBody(obstacle3);
+            //RigidBody.CreateCubeBody(1.5f, 1.5f, 1.5f, new Vector3(1, 20, 0), 1, true, 0.5f, Color4.Yellow, out obstacle2);
+            //int anchorCircleId2 = obstacle2.shape.CreateAnchor(new Vector3(0, 0, 0));
+            //world.AddBody(obstacle2);
 
-            JointConnection jointConnection = new JointConnection(obstacle1, anchorCircleId, obstacle2, anchorCircleId2);
-            JointConnection jointConnection2 = new JointConnection(obstacle2, anchorCircleId3, obstacle3, anchorCircleId3);
+            //RigidBody.CreateCubeBody(1, 1, 1, new Vector3(1, 18, 0), 1, false, 0.5f, Color4.Red, out obstacle3);
+            //int anchorCircleId3 = obstacle3.shape.CreateAnchor(new Vector3(0, 0, 0));
+            //world.AddBody(obstacle3);
+
+            JointConnection jointConnection = new JointConnection(obstacle1, anchorCircleId, obstacle4, anchorCircleId2);
+            ////JointConnection jointConnection2 = new JointConnection(obstacle2, anchorCircleId3, obstacle3, anchorCircleId3);
 
             joints.Add(new SpringJoint(jointConnection, 2f, 5));
-            joints.Add(new SpringJoint(jointConnection2, 2f, 5));
+            ////joints.Add(new SpringJoint(jointConnection2, 2f, 5));
         }
         protected override void OnRenderFrame(FrameEventArgs e)
         {
             base.OnRenderFrame(e);
 
             world.Update((float)e.Time, 1);
-            sphere.RenderBasic();
-            cube.RenderBasic();
+            //sphere.RenderBasic();
+            //cube.RenderBasic();
 
             RenderLamps();
             SwapBuffers();

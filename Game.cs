@@ -39,7 +39,8 @@ namespace PhysicsEngine
         protected override void OnLoad()
         {
             base.OnLoad();
-            GL.ClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+            Color4 color = new Color4(30, 31, 36, 1);
+            GL.ClearColor(color);
             GL.Enable(EnableCap.DepthTest);
             IsVisible = true;
           

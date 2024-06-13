@@ -85,9 +85,9 @@ namespace PhysicsEngine
                 constant = 1f,
                 linear = 0.09f,
                 quadratic = 0.032f,
-                ambient = new Vector3(3f), // Ortam (ambient) bileşeni
-                diffuse = new Vector3(1.5f), // Yayılma (diffuse) bileşeni
-                specular = new Vector3(3f) // Parlaklık (specular) bileşeni
+                ambient = new Vector3(1.8f), // Ortam (ambient) bileşeni
+                diffuse = new Vector3(3f), // Yayılma (diffuse) bileşeni
+                specular = new Vector3(1f) // Parlaklık (specular) bileşeni
             };
 
             // 4 adet aynı özelliklere sahip ışık oluşturma
