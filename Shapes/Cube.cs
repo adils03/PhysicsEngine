@@ -19,7 +19,16 @@ namespace PhysicsEngine
             LoadTexture();
             CreateBuffers();
         }
-
+        public Cube(Vector3 position, ShapeShaderType type, Color4 color, Vector3 scale)
+        {
+            base.ShaderType = type;
+            base.Transform.Position = position;
+            base.Color = color;
+            base.Transform.Scale = scale;
+            AssignVerticesIndices();
+            LoadTexture();
+            CreateBuffers();
+        }
         public Cube(Vector3 position, Vector3 scale, string texturePath1,string texturePath2,ShapeShaderType type)
         {
             base.ShaderType = type;

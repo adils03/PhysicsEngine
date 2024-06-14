@@ -16,7 +16,7 @@ namespace PhysicsEngine
                 WindowBorder = WindowBorder.Fixed,
                 StartVisible = false,
             };
-            using Basketball game = new(settings);
+            using Rope game = new(settings);
             game.Run();
 
         }
