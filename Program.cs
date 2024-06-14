@@ -16,7 +16,7 @@ namespace PhysicsEngine
                 WindowBorder = WindowBorder.Fixed,
                 StartVisible = false,
             };
-            using PlayGround game = new(settings);
+            using Labyrent game = new(settings);
             game.Run();
 
         }

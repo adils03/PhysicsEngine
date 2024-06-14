@@ -160,9 +160,9 @@ namespace PhysicsEngine
                         rigidBodyA.Move(-normal * depth / 2f);
                         rigidBodyB.Move(normal * depth / 2f);
                     }
+
                     Collisions.FindContactPoints(rigidBodyA, rigidBodyB, out Vector3 contact1, out Vector3 contact2, out Vector3 contact3, out Vector3 contact4, out int contactCount);
                     CollisionInfo collisionInfo = new CollisionInfo(rigidBodyA, rigidBodyB, normal, depth, contact1, contact2, contact3, contact4, contactCount);
-
                     switch (ResolveType)
                     {
                         case ResolveType.Basic:
@@ -288,8 +288,8 @@ namespace PhysicsEngine
             Vector3 rb = contactPoint - bodyB.position;
 
             // Calculate the relative velocity at the contact point
-            Vector3 relativeVelocity = (bodyB.linearVelocity + Vector3.Cross(bodyB.angularVelocity, rb)) -
-                                       (bodyA.linearVelocity + Vector3.Cross(bodyA.angularVelocity, ra));
+            Vector3 relativeVelocity = bodyB.linearVelocity + bodyB.angularVelocity -
+                                       bodyA.linearVelocity + bodyA.angularVelocity;
 
             // Early exit if the velocities are separating
             if (Vector3.Dot(relativeVelocity, normal) > 0)

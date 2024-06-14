@@ -81,9 +81,9 @@ namespace PhysicsEngine
             this.torqueAccumulator = Vector3.Zero;
             this.forceAccumulator = Vector3.Zero;
 
-            this.staticFriction = 0.5f;
-            this.dynamicFriction = 0.3f;
-            this.damping = 0.99f;
+            this.staticFriction = 0.8f;
+            this.dynamicFriction = 0.4f;
+            this.damping = 0.999f;
             if (!isStatic)
             {
                 invMass = 1.0f / mass;
@@ -121,15 +121,7 @@ namespace PhysicsEngine
             Move(linearVelocity * time);
             angularVelocity *= 30;
             angle += angularVelocity * time;
-
-            if (angle.Length < 0.01f) // Eşik değerine göre açının sıfırlanması
-            {
-                angle *= 0.3f;
-                angularVelocity = Vector3.Zero; // Açı sıfırlandığında, açısal hızı da sıfırla
-            }
             Rotate(angle);
-
-
             //linearVelocity *= damping;
             angle *= damping;
 
@@ -137,6 +129,44 @@ namespace PhysicsEngine
             angularVelocity = Vector3.Zero;
             force = Vector3.Zero;
         }
+        /*public void Update(float time, Vector3 gravity, int iterations)
+        {
+            shape.RenderBasic();
+
+            if (isStatic) return;
+
+            // Zaman dilimini iterasyon sayısına böl
+            time /= iterations;
+
+            // Kuvvet birikimcisini kullanarak lineer hızlanmayı hesapla
+            Vector3 totalForce = force + forceAccumulator; // Eklenen kuvvet birikimcisini kullan
+            Vector3 acceleration = totalForce / mass;
+
+            // Lineer hızı güncelle
+            linearVelocity += gravity * time;
+            linearVelocity += acceleration * time;
+            //linearVelocity *= 0.9999f;
+
+            // Konumu güncelle
+            Move(linearVelocity * time);
+
+            // Açısal hızlanmayı hesapla
+            angularVelocity *= 0.8f;
+
+            // Açıyı güncelle
+            angle += angularVelocity * time;
+            shape.Rotate(angle);
+           
+            // RigidBody'nin pozisyonunu shape'in pozisyonuyla güncelle
+            position = shape.Transform.Position;
+
+            // Kuvvet ve tork birikimcilerini sıfırla
+            forceAccumulator = Vector3.Zero;
+            torqueAccumulator = Vector3.Zero;
+
+            // Kuvvet birikimcisini sıfırla
+            force = Vector3.Zero;
+        }*/
 
         public float CalculateRotationalInertiaX()
         {
@@ -219,48 +249,8 @@ namespace PhysicsEngine
 
             return new AABB(minX, minY, minZ, maxX, maxY, maxZ);
         }
-        /*public void Update(float time, Vector3 gravity, int iterations)
-        {
-            shape.RenderBasic();
-
-            if (isStatic) return;
-
-            // Zaman dilimini iterasyon sayısına böl
-            time /= iterations;
-
-            // Kuvvet birikimcisini kullanarak lineer hızlanmayı hesapla
-            Vector3 totalForce = force + forceAccumulator; // Eklenen kuvvet birikimcisini kullan
-            Vector3 acceleration = totalForce / mass;
-
-            // Lineer hızı güncelle
-            linearVelocity += gravity * time;
-            linearVelocity += acceleration * time;
-            linearVelocity *= 0.9999f;
-            // Konumu güncelle
-            shape.Translate(linearVelocity * time);
-
-            // Açısal hızlanmayı hesapla
-            Vector3 angularAcceleration = torqueAccumulator * invInertiaTensor;
-
-            // Açısal hızı güncelle
-            angularVelocity += angularAcceleration * time;
-            angularVelocity *= 0.8f;
-
-            // Açıyı güncelle
-            angle += angularVelocity * time;
-            shape.Rotate(angle);
-           
-            // RigidBody'nin pozisyonunu shape'in pozisyonuyla güncelle
-            position = shape.Transform.Position;
-
-            // Kuvvet ve tork birikimcilerini sıfırla
-            forceAccumulator = Vector3.Zero;
-            torqueAccumulator = Vector3.Zero;
-
-            // Kuvvet birikimcisini sıfırla
-            force = Vector3.Zero;
-        }*/
         public void AddForce(Vector3 amount) => force += amount;
+        public void AddAngularVelocity(Vector3 amount) => angularVelocity += amount;
         public void AddForceAtPoint(Vector3 atPoint, Vector3 force)
         {
             Vector3 direction = atPoint - position;

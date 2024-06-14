@@ -192,24 +192,6 @@ namespace PhysicsEngine
                 }
             }
 
-            //if (contactCount == 0)
-            //{
-            //    for (int i = 0; i < edgesA.Length; i++)
-            //    {
-            //        for (int j = 0; j < edgesB.Length; j++)
-            //        {
-            //            if (CalculateLineLineIntersection(edgesA[i], edgesB[j], out Vector3 result, out Vector3 result2))
-            //            {
-            //                Console.WriteLine("aa");
-            //                contact1 = result;
-            //                contactCount = 1;
-            //            }
-            //        }
-
-            //    }
-
-            //}
-
 
             contactCount = Math.Min(contactPoints.Count, 4);
             Vector3[] contactPointsArray = contactPoints.ToArray();
@@ -340,6 +322,10 @@ namespace PhysicsEngine
             axises.Add(axisFromSphere);
             foreach (Vector3 axis in axises)
             {
+                if(axis == Vector3.Zero)
+                {
+                    return true;
+                }
                 ProjectVertices(vertices, axis.Normalized(), out float minA, out float maxA);
                 ProjectCircle(sphere, axis.Normalized(), out float minB, out float maxB);
                 if (minA >= maxB || minB >= maxA)
@@ -548,61 +534,7 @@ namespace PhysicsEngine
         {
             return MathF.Abs(a - b) < 0.0005f;
         }
-        public static bool CalculateLineLineIntersection(Edge edge1, Edge edge2, out Vector3 resultSegmentPoint1, out Vector3 resultSegmentPoint2)
-        {
-            // Algorithm is ported from the C algorithm of 
-            // Paul Bourke at http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline3d/
-            resultSegmentPoint1 = Vector3.Zero;
-            resultSegmentPoint2 = Vector3.Zero;
-
-            Vector3 p1 = edge1.a;
-            Vector3 p2 = edge1.b;
-            Vector3 p3 = edge2.a;
-            Vector3 p4 = edge2.b;
-            Vector3 p13 = p1 - p3;
-            Vector3 p43 = p4 - p3;
-
-            if (p43.LengthSquared < 0.0005f)
-            {
-                return false;
-            }
-            Vector3 p21 = p2 - p1;
-            if (p21.LengthSquared < 0.05f)
-            {
-                return false;
-            }
-
-            double d1343 = p13.X * (double)p43.X + (double)p13.Y * p43.Y + (double)p13.Z * p43.Z;
-            double d4321 = p43.X * (double)p21.X + (double)p43.Y * p21.Y + (double)p43.Z * p21.Z;
-            double d1321 = p13.X * (double)p21.X + (double)p13.Y * p21.Y + (double)p13.Z * p21.Z;
-            double d4343 = p43.X * (double)p43.X + (double)p43.Y * p43.Y + (double)p43.Z * p43.Z;
-            double d2121 = p21.X * (double)p21.X + (double)p21.Y * p21.Y + (double)p21.Z * p21.Z;
-
-            double denom = d2121 * d4343 - d4321 * d4321;
-            if (Math.Abs(denom) < 0.05f)
-            {
-                return false;
-            }
-            double numer = d1343 * d4321 - d1321 * d4343;
-
-            double mua = numer / denom;
-            double mub = (d1343 + d4321 * (mua)) / d4343;
-
-            resultSegmentPoint1.X = (float)(p1.X + mua * p21.X);
-            resultSegmentPoint1.Y = (float)(p1.Y + mua * p21.Y);
-            resultSegmentPoint1.Z = (float)(p1.Z + mua * p21.Z);
-            resultSegmentPoint2.X = (float)(p3.X + mub * p43.X);
-            resultSegmentPoint2.Y = (float)(p3.Y + mub * p43.Y);
-            resultSegmentPoint2.Z = (float)(p3.Z + mub * p43.Z);
-
-            if (Vector3.Distance(resultSegmentPoint1, resultSegmentPoint2) < 0.0001f)
-            {
-
-                return true;
-
-            }
-            return false;
-        }
+      
     }
 
     public readonly struct Edge
