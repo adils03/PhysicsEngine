@@ -28,21 +28,21 @@ An Octree is a hierarchical spatial partitioning structure that divides the 3D s
 The Phong lighting model enhances the visual realism of the 3D scene. Our implementation calculates lighting per vertex, interpolating across the surfaces of the objects for smooth shading. The following equations are used for the lighting components:
 
 - **Ambient Component:**
-  \[
-  I_{ambient} = k_{ambient} \cdot I_{light}
-  \]
+  - `I_ambient = k_ambient * I_light`
 
 - **Diffuse Component:**
-  \[
-  I_{diffuse} = k_{diffuse} \cdot I_{light} \cdot (\vec{L} \cdot \vec{N})
-  \]
+  - `I_diffuse = k_diffuse * I_light * (L . N)`
 
 - **Specular Component:**
-  \[
-  I_{specular} = k_{specular} \cdot I_{light} \cdot (\vec{R} \cdot \vec{V})^n
-  \]
+  - `I_specular = k_specular * I_light * (R . V)^n`
 
-Where \( I_{light} \) is the intensity of the light source, \( \vec{L} \) is the light direction, \( \vec{N} \) is the surface normal, \( \vec{R} \) is the reflection direction, \( \vec{V} \) is the view direction, and \( n \) is the shininess coefficient.
+  Where:
+  - `I_light` is the intensity of the light source.
+  - `L` is the light direction.
+  - `N` is the surface normal.
+  - `R` is the reflection direction.
+  - `V` is the view direction.
+  - `n` is the shininess coefficient.
 
 ### SAT Collision Detection
 The SAT collision detection method checks for potential separation axes between two convex shapes. If a separating axis is found where the projections of the shapes do not overlap, it is concluded that the shapes do not collide. This method involves:
