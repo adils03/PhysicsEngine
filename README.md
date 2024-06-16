@@ -60,13 +60,13 @@ To optimize collision detection, AABBs and an Octree structure are used:
 ## Conclusion
 This 3D physics engine demonstrates the integration of advanced lighting, robust collision detection, and effective optimization techniques. It provides a solid foundation for developing more complex simulations and interactive 3D applications.
 ### Balls Demo
-<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/ballsDemo.gif" alt="Balls Demo" width="300">
+<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/ballsDemo.gif" alt="Balls Demo" width="700">
 
 ### Falling Cubes Demo
-<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/cubesDemo.gif" alt="Falling Cubes Demo" width="300">
+<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/cubesDemo.gif" alt="Falling Cubes Demo" width="700">
 
 ### Domino Demo
-<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/dominoDemo.gif" alt="Domino Demo" width="300">
+<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/dominoDemo.gif" alt="Domino Demo" width="700">
 
 ### Space Demo
-<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/spaceDemo.gif" alt="Space Demo" width="300">
+<img src="https://github.com/adils03/PhysicsEngine/blob/PhysicsEngineV2/DemoGifs/spaceDemo.gif" alt="Space Demo" width="700">
