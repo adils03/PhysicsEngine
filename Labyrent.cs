@@ -52,7 +52,7 @@ namespace PhysicsEngine
                 {
                     if (maze[z, x] == 1)
                     {
-                        Vector3 position = new Vector3(x, 0, z); // Küplerin Y ekseninde (0) olacak şekilde pozisyon ayarladık
+                        Vector3 position = new Vector3(x, 0, z); 
                         RigidBody.CreateCubeBody(1, 1, 1, position, 1, true, 0f, Color4.AliceBlue, out RigidBody obstacle);
                         world.AddBody(obstacle);
                     }
