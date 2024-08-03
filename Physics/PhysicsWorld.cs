@@ -48,7 +48,7 @@ namespace PhysicsEngine
         public void AddBody(RigidBody rigidBody)
         {
             rigidBodies.Add(rigidBody);
-            octree.Insert(rigidBody); // RigidBody nesnesini Octree'ye ekleyin.
+            octree.Insert(rigidBody); 
         }
 
         public bool RemoveBody(RigidBody rigidBody)
@@ -62,7 +62,7 @@ namespace PhysicsEngine
 
             if (removed)
             {
-                octree.Remove(rigidBody); // RigidBody nesnesini Octree'den çıkarın.
+                octree.Remove(rigidBody); 
 
                 contactPairs = contactPairs
                     .Where(pair => rigidBodies[pair.Item1] != rigidBody && rigidBodies[pair.Item2] != rigidBody)
